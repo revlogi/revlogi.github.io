@@ -54,6 +54,8 @@ export async function buildAll(): Promise<number> {
 	}
 	await copyDir("public", DIST);
 	await Bun.write(`${DIST}/style.css`, Bun.file("src/ssg/styles/global.css"));
+	const katexCss = join("node_modules", "katex", "dist", "katex.min.css");
+	if (existsSync(katexCss)) await Bun.write(`${DIST}/katex.css`, Bun.file(katexCss));
 
 	const pageCount = pages.size;
 	console.log(`✓ built ${pageCount} pages → ${DIST}/`);

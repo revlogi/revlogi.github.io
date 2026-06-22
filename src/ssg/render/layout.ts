@@ -14,6 +14,7 @@ export function renderLayout(meta: PageMeta, body: string): string {
 <meta name="description" content="${meta.description ?? siteConfig.description}"/>
 <link rel="canonical" href="${siteConfig.url}"/>
 <link rel="stylesheet" href="/style.css"/>
+<link rel="stylesheet" href="/katex.css"/>
 </head>
 <body>
 <header><a href="/">${siteConfig.title}</a></header>
