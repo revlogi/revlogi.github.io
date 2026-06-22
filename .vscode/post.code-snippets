@@ -1,0 +1,15 @@
+{
+	"Add frontmatter to a post": {
+		"scope": "markdown",
+		"prefix": "frontmatter",
+		"body": [
+			"---",
+			"title: \"${1:Post Title}\"",
+			"description: \"${2:A short summary}\"",
+			"publishDate: \"${CURRENT_DATE} ${CURRENT_MONTH_NAME} ${CURRENT_YEAR}\"",
+			"---",
+			"$0",
+		],
+		"description": "Add frontmatter for a new post",
+	},
+}
