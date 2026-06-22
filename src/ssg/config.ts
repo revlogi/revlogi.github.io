@@ -1,7 +1,7 @@
 export const siteConfig = {
 	title: "RevLogi's blog",
-	url: "https://RevLogi.github.io",
-	author: "Chris Williams",
+	url: "https://revlogi.github.io",
+	author: "RevLogi",
 	lang: "en-GB",
-	description: "An opinionated starter theme for Astro",
+	description: "personal blog",
 };
