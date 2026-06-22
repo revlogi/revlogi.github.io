@@ -13,6 +13,8 @@ export function renderLayout(meta: PageMeta, body: string): string {
 <title>${meta.title} • ${siteConfig.title}</title>
 <meta name="description" content="${meta.description ?? siteConfig.description}"/>
 <link rel="canonical" href="${siteConfig.url}"/>
+<link rel="icon" href="/so.jpg" type="image/jpeg"/>
+<link rel="apple-touch-icon" href="/so.jpg"/>
 <link rel="stylesheet" href="/style.css"/>
 <link rel="stylesheet" href="/katex.css"/>
 </head>

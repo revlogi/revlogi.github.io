@@ -29,12 +29,12 @@ export async function buildAll(): Promise<number> {
 	// Input: rawFrontmatter (yaml string) + rawBody (markdown string)
 	// Output: Post[] = { slug, title, publishDate, draft, html (rendered) }
 	const md = await createMarkdown();
-	const posts: Post[] = [];
+	let posts: Post[] = [];
 	for (const doc of docs) {
 		const post = await parsePost(doc, md);
 		posts.push(post);
 	}
-	sortPosts(posts);
+	posts = sortPosts(posts);
 
 	// ---- 3. RENDER -----
 	// Input: Post (data object)
