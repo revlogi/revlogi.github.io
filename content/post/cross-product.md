@@ -2,7 +2,6 @@
 title: "Understand Cross Product"
 description: "a quick note on cross product"
 publishDate: "11 January 2026"
-tags: ["linear algebra"]
 ---
 
 Let two vectors be defined as:

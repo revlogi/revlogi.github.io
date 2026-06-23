@@ -32,7 +32,13 @@ export async function createMarkdown(): Promise<MarkdownIt> {
 					// fallback if lang not supported
 				}
 			}
-			return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
+			const lines = md.utils
+				.escapeHtml(str)
+				.replace(/\n$/, "")
+				.split("\n")
+				.map((l) => l || " ");
+			const wrapped = lines.map((l) => `<span class="line">${l}</span>`).join("\n");
+			return `<pre><code>\n${wrapped}\n</code></pre>`;
 		},
 	});
 

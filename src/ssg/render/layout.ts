@@ -15,6 +15,8 @@ export function renderLayout(meta: PageMeta, body: string): string {
 <link rel="canonical" href="${siteConfig.url}"/>
 <link rel="icon" href="/so.jpg" type="image/jpeg"/>
 <link rel="apple-touch-icon" href="/so.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond&family=Open+Sans:wght@300;400&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css"/>
 <link rel="stylesheet" href="/katex.css"/>
 </head>

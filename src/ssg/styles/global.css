@@ -2,21 +2,26 @@
 	--text: #1a1a1a;
 	--bg: #fdfdfd;
 	--link: #2bbc8a;
-	--font: ui-monospace, Menlo, Monaco, Consolas, monospace;
-	--maxw: 42rem;
+	--font-serif: "EB Garamond", Georgia, serif;
+	--font-sans: "Open Sans", system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", "Fira Code", monospace;
+	--lh: 1.7rem;
 }
 
 * {
 	box-sizing: border-box;
 }
 
+html {
+	font-family: var(--font-serif);
+	font-size-adjust: ex-height 0.53;
+	line-height: var(--lh);
+}
+
 body {
+	max-width: 80ch;
+	padding: 2ch;
 	margin: 0 auto;
-	max-width: var(--maxw);
-	padding: 2rem 1rem;
-	font-family: var(--font);
-	font-size: 0.95rem;
-	line-height: 1.7;
 	color: var(--text);
 	background: var(--bg);
 }
@@ -30,49 +35,146 @@ a:hover {
 	text-decoration: underline;
 }
 
-header,
-footer {
-	margin: 2rem 0;
+header {
+	margin-bottom: 2rem;
 	text-align: center;
 }
 
-h1 {
-	font-size: 1.4rem;
+header a {
+	color: #1a1a1a;
+	font-size: 1.2rem;
 }
 
+header a:hover {
+	color: #1a1a1a;
+	text-decoration: underline;
+}
+
+footer {
+	margin-top: 2rem;
+	text-align: center;
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--font-sans);
+	font-weight: 300;
+	color: var(--link);
+	text-rendering: optimizeLegibility;
+	text-wrap: balance;
+	line-height: 1em;
+}
+
+h1,
 h2 {
-	font-size: 1.15rem;
+	font-size: 2rem;
 }
 
-.prose p {
-	margin: 1em 0;
+h3 {
+	font-size: 1.5rem;
 }
 
-.prose img {
+p {
+	hyphens: auto;
+	text-align: justify;
+}
+
+h1,
+h2,
+h3,
+p,
+pre,
+table,
+ul,
+ol {
+	margin-bottom: var(--lh);
+}
+
+img {
 	max-width: 100%;
 }
 
-.prose pre {
+article > *,
+article > section > * {
+	max-width: 55ch;
+}
+
+article > section,
+article > figure,
+article > section > figure {
+	max-width: 80ch;
+}
+
+article h1 {
+	font-size: 2rem;
+	margin-bottom: 0;
+}
+
+article time {
+	display: block;
+	color: #888;
+	margin-bottom: var(--lh);
+}
+
+code,
+pre {
+	font-family: var(--font-mono);
+	font-size: 0.9rem;
+	font-variant-ligatures: none;
+}
+
+pre {
 	overflow-x: auto;
 	padding: 1rem;
 	border-radius: 4px;
-	font-size: 0.85rem;
 }
 
-.prose code {
-	font-family: var(--font);
+code {
+	counter-reset: line;
+}
+
+.line {
+	counter-increment: line;
+}
+
+.line::before {
+	content: counter(line);
+	display: inline-block;
+	width: 3ch;
+	padding-right: 0.5ch;
+	margin-right: 1ch;
+	text-align: right;
+	opacity: 0.35;
+	border-right: 1px solid currentColor;
+	user-select: none;
 }
 
 .post-list {
 	list-style: none;
 	padding: 0;
+	margin: 0;
 }
 
 .post-list li {
-	margin: 0.5rem 0;
+	margin-top: 1em;
 }
 
 .post-list time {
+	display: block;
 	color: #888;
-	margin-right: 0.5rem;
+	font-size: 0.9rem;
+}
+
+.post-list h2 {
+	margin: 0;
+}
+
+.post-list a {
+	color: var(--link);
+	text-decoration: none;
+}
+
+.post-list a:hover {
+	text-decoration: underline;
 }

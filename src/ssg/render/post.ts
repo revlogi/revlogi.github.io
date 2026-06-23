@@ -23,7 +23,7 @@ export function renderIndex(posts: Post[]): string {
 	const items = posts
 		.map(
 			(p) =>
-				`<li><time datetime="${p.publishDate.toISOString()}">${formatDate(p.publishDate)}</time> <a href="/posts/${p.slug}/">${p.title}</a></li>`,
+				`<li><time datetime="${p.publishDate.toISOString()}">${formatDate(p.publishDate)}</time><h2><a href="/posts/${p.slug}/">${p.title}</a></h2></li>`,
 		)
 		.join("\n  ");
 	return renderLayout(
