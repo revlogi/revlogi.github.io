@@ -19,6 +19,7 @@ export function renderLayout(meta: PageMeta, body: string): string {
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&family=Open+Sans:wght@300;400&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css"/>
 <link rel="stylesheet" href="/katex.css"/>
+<link rel="alternate" type="application/rss+xml" title="${siteConfig.title}" href="/rss.xml"/>
 </head>
 <body>
 <header><a href="/">${siteConfig.title}</a></header>

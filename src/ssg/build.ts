@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { siteConfig } from "./config";
 import { sortPosts } from "./date";
 import { createMarkdown, parsePost } from "./parse";
 import { renderIndex, renderPost } from "./render/post";
@@ -59,6 +60,10 @@ export async function buildAll(): Promise<number> {
 
 	const pageCount = pages.size;
 	console.log(`✓ built ${pageCount} pages → ${DIST}/`);
+
+	// ---- RSS -----
+	await Bun.write(`${DIST}/rss.xml`, generateRssXml(posts));
+
 	return pageCount;
 }
 
@@ -84,6 +89,41 @@ async function copyDir(src: string, dest: string): Promise<void> {
 			await Bun.write(destPath, Bun.file(srcPath));
 		}
 	}
+}
+
+// ---- RSS helper -----
+
+function escXml(s: string): string {
+	return s
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
+}
+
+function generateRssXml(posts: Post[]): string {
+	const items = posts
+		.map(
+			(p) =>
+				`    <item>
+      <title>${escXml(p.title)}</title>
+      <link>${siteConfig.url}/posts/${p.slug}/</link>
+      <description>${escXml(p.description)}</description>
+      <pubDate>${p.publishDate.toUTCString()}</pubDate>
+      <guid>${siteConfig.url}/posts/${p.slug}/</guid>
+    </item>`,
+		)
+		.join("\n");
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escXml(siteConfig.title)}</title>
+    <link>${siteConfig.url}</link>
+    <description>${escXml(siteConfig.description)}</description>
+    <atom:link href="${siteConfig.url}/rss.xml" rel="self" type="application/rss+xml"/>
+${items}
+  </channel>
+</rss>`;
 }
 
 // Entry point when run directly (not imported by serve.ts)
