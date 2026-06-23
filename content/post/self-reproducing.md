@@ -13,20 +13,20 @@ So how can we tackle this problem? To illustrate this better, I wrote a simple l
 Now let's try to self-reproduce ourselves. Suppose we have some contents like s:
 
 ```
-let s = "some content" \\ This creates a local variable
+let s = "some contents" \\ This creates a local variable
 ```
 
-and we want the program to reproduce itself, so we can print this. In ouro, we can concatenate printed stuff using +:
+and we want the program to reproduce itself, so we can print this. In ouro, we can concatenate printed stuff using + (don't forget escaping):
 
 ```
-let s = "some content"
-print("let s = " + s)
+let s = "some contents"
+print("let s = " + "\"" + s + "\"")
 ```
 
 This program will print:
 
 ```
-let s = "some content"
+let s = "some contents"
 ```
 
 Seems like it prints itself, but there's one missing piece: the print statement itself.
@@ -50,6 +50,8 @@ Ouro has a native memory system that allow you to manipulate the memory that sto
 It also has a built-in variable called `__code_len__` which stores the length of the source code and it can output using `putchar()`.
 
 These features grant us power to do something interesting, like producing the capital version of the source code:
+
+(Yes, I haven't even implemented `and` , so I must write two if statements to find lowercase letters)
 
 ```
 let i = 0

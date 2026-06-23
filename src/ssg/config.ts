@@ -3,5 +3,5 @@ export const siteConfig = {
 	url: "https://revlogi.github.io",
 	author: "RevLogi",
 	lang: "en-GB",
-	description: "an ignorant learner",
+	description: "personal blog",
 };
