@@ -5,6 +5,7 @@ import { siteConfig } from "./config";
 import { sortPosts } from "./date";
 import { createMarkdown, parsePost } from "./parse";
 import { renderIndex, renderPost } from "./render/post";
+import { renderAbout, renderFriends } from "./render/pages";
 import { scanPosts } from "./scan";
 import type { Post } from "./types";
 
@@ -42,6 +43,8 @@ export async function buildAll(): Promise<number> {
 	// Output: Map<URL path, HTML string>  — pure functions, no side effects
 	const pages = new Map<string, string>();
 	pages.set("/", renderIndex(posts)); // home = flat post list
+	pages.set("/about/", renderAbout());
+	pages.set("/friends/", renderFriends());
 	for (const post of posts) {
 		pages.set(`/posts/${post.slug}/`, renderPost(post)); // one page per post
 	}

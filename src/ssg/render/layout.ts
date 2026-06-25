@@ -4,7 +4,7 @@ import type { PageMeta } from "../types";
 // renderLayout: HTML shell for all pages.
 // Input: meta (<head> data) + body (page HTML string)
 // Output: complete HTML document string
-export function renderLayout(meta: PageMeta, body: string): string {
+export function renderLayout(meta: PageMeta, body: string, showBottomLinks = true): string {
 	return `<!doctype html>
 <html lang="${siteConfig.lang}">
 <head>
@@ -26,6 +26,7 @@ export function renderLayout(meta: PageMeta, body: string): string {
 <main>
 ${body}
 </main>
+${showBottomLinks ? `<nav class="bottom-links"><a href="/about/">About</a><a href="/friends/">Friends</a></nav>` : ""}
 <footer></footer>
 </body>
 </html>`;

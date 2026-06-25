@@ -21,6 +21,7 @@ html {
 body {
 	max-width: 80ch;
 	padding: 2ch;
+	padding-bottom: 5rem;
 	margin: 0 auto;
 	color: var(--text);
 	background: var(--bg);
@@ -176,5 +177,39 @@ code {
 }
 
 .post-list a:hover {
+	text-decoration: underline;
+}
+
+.bottom-links {
+	position: fixed;
+	bottom: 2rem;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 2rem;
+	z-index: 10;
+}
+
+.bottom-links a {
+	color: #1a1a1a;
+}
+
+.friends-list {
+	list-style: none;
+	padding: 0;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.friends-list li {
+	margin: 0;
+}
+
+.friends-list a {
+	color: var(--link);
+	text-decoration: none;
+}
+
+.friends-list a:hover {
 	text-decoration: underline;
 }

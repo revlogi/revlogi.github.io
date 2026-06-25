@@ -13,6 +13,7 @@ export function renderPost(post: Post): string {
 <time datetime="${post.publishDate.toISOString()}">${formatDate(post.publishDate)}</time>
 <div class="prose">${post.html}</div>
 </article>`,
+		false,
 	);
 }
 
