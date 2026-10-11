@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-labelledby="title desc">
+<title id="title">Same instructions, different execution</title>
+<desc id="desc">Two independent additions followed by a dependent subtraction. Single issue takes three cycles; dual issue takes two in this simplified example.</desc>
+<rect width="800" height="500" rx="12" fill="#f4f7f6"/>
+<g font-family="Arial, sans-serif" fill="#183b32">
+<text x="32" y="42" font-size="25" font-weight="bold">Same instructions, different execution</text>
+<g font-family="monospace" font-size="21"><text x="32" y="87">I1  a = b + c</text><text x="32" y="119">I2  d = e + f</text><text x="32" y="151">I3  g = a - d</text></g>
+<text x="365" y="105" font-size="19">I1 and I2 are independent.</text><text x="365" y="137" font-size="19">I3 needs both results.</text>
+<g font-size="19"><text x="32" y="209">Issue schedule</text><text x="301" y="209">Cycle 1</text><text x="461" y="209">Cycle 2</text><text x="621" y="209">Cycle 3</text><text x="32" y="267">Single issue</text><text x="32" y="350">Dual issue</text></g>
+<g stroke="#c6d5cf" fill="white"><rect x="270" y="230" width="150" height="56" rx="6"/><rect x="430" y="230" width="150" height="56" rx="6"/><rect x="590" y="230" width="150" height="56" rx="6"/><rect x="270" y="315" width="150" height="85" rx="6"/><rect x="430" y="315" width="150" height="85" rx="6"/><rect x="590" y="315" width="150" height="85" rx="6"/></g>
+<g font-size="24" text-anchor="middle" font-weight="bold"><text x="345" y="266" fill="#087a69">I1</text><text x="505" y="266" fill="#306aa8">I2</text><text x="665" y="266" fill="#996016">I3</text><text x="345" y="348" fill="#087a69">I1</text><text x="345" y="382" fill="#306aa8">I2</text><text x="505" y="366" fill="#996016">I3</text><text x="665" y="366" fill="#86978f">—</text></g>
+<text x="32" y="449" font-size="17">Simplified: one-cycle operations, sufficient execution units;</text><text x="32" y="475" font-size="17">fetch and other pipeline stages omitted.</text>
+</g></svg>
