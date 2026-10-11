@@ -14,6 +14,7 @@ A collection of blog posts I've enjoyed and found useful.
 
 - [A Beginners' Guide Away from scanf() - Felix Palmen](https://web.archive.org/web/20260420174213/http://sekrit.de/webdocs/c/beginners-guide-away-from-scanf.html)
 - [Pointers Are Complicated, or: What's in a Byte?](https://www.ralfj.de/blog/2018/07/24/pointers-and-bytes.html)
+- [C's biggest mistake - Walter Bright](https://digitalmars.com/articles/C-biggest-mistake.html)
 
 ## AI
 - [Thoughts on slowing the fuck down - Mario Zechner](https://mariozechner.at/posts/2026-03-25-thoughts-on-slowing-the-fuck-down/)

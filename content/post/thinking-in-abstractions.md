@@ -2,7 +2,7 @@
 title: "Abstraction: Thinking at the Right Level"
 description: "From named procedures and data interfaces to languages, compilers, processors, and operating systems."
 publishDate: "11 October 2026"
-tag: computing
+tag: computation
 ---
 
 A program can be understood at many levels. We might ask what a function computes, how its data is represented, which instructions a compiler produces, or how a processor executes them. Each question reveals something useful, but trying to answer all of them at once quickly becomes overwhelming.

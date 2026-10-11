@@ -1,8 +1,8 @@
 ---
 title: "Recursion without names"
-description: "y combinator"
+description: "y combinator #unfinished"
 publishDate: "6 July 2026"
-tag: computing
+tag: computation
 ---
 
 ## Why Names aren't enough
