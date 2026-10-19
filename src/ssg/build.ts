@@ -44,7 +44,7 @@ export async function buildAll(): Promise<number> {
 
 	// ---- 3. RENDER -----
 	// Input: Post (data object)
-	// Output: Map<URL path, HTML string>  — pure functions, no side effects
+	// Output: Map<URL path, HTML string> — data rendered with HTML templates
 	const pages = new Map<string, string>();
 	pages.set("/", renderIndex(posts)); // home = flat post list
 	pages.set("/about/", renderAbout());

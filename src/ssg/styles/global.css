@@ -252,6 +252,10 @@ code {
 	user-select: none;
 }
 
+.home-posts {
+	margin-inline-start: 2ch;
+}
+
 .post-list {
 	list-style: none;
 	padding: 0;
@@ -416,6 +420,10 @@ code {
 }
 
 @media (max-width: 40rem) {
+	.home-posts {
+		margin-inline-start: 0;
+	}
+
 	body {
 		padding: 1.25rem;
 	}

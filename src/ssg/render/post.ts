@@ -1,21 +1,29 @@
 import { formatDate } from "../date";
 import type { Post } from "../types";
 import { renderLayout } from "./layout";
+import { renderTemplate } from "./template";
 
 interface PostNeighbours {
 	newer?: Post;
 	older?: Post;
 }
 
-// renderPost: a single post's full page.
-// Input: Post (with title/publishDate/html)
-// Output: HTML string
 export function renderPost(post: Post, neighbours: PostNeighbours = {}): string {
 	const newer = neighbours.newer
-		? `<a class="post-nav-newer" href="/posts/${neighbours.newer.slug}/"><span>← Newer</span>${neighbours.newer.title}</a>`
+		? renderTemplate("post-neighbour", {
+				direction: "newer",
+				slug: neighbours.newer.slug,
+				title: neighbours.newer.title,
+				label: "← Newer",
+			})
 		: "";
 	const older = neighbours.older
-		? `<a class="post-nav-older" href="/posts/${neighbours.older.slug}/"><span>Older →</span>${neighbours.older.title}</a>`
+		? renderTemplate("post-neighbour", {
+				direction: "older",
+				slug: neighbours.older.slug,
+				title: neighbours.older.title,
+				label: "Older →",
+			})
 		: "";
 
 	return renderLayout(
@@ -24,41 +32,32 @@ export function renderPost(post: Post, neighbours: PostNeighbours = {}): string 
 			path: `/posts/${post.slug}/`,
 			description: post.description,
 		},
-		`<article>
-<h1>${post.title}</h1>
-<time datetime="${post.publishDate.toISOString()}">${formatDate(post.publishDate)}</time>
-${post.tag ? `<p class="tag"><a href="/tags/${post.tag}/">#${post.tag}</a></p>` : ""}
-<div class="prose">${post.html}</div>
-<nav class="post-nav" aria-label="More posts">
-${newer}
-${older}
-</nav>
-<a class="back-to-posts" href="/">← All posts</a>
-</article>`,
+		renderTemplate("post", {
+			title: post.title,
+			datetime: post.publishDate.toISOString(),
+			date: formatDate(post.publishDate),
+			tag: post.tag ? renderTemplate("post-tag", { tag: post.tag }) : "",
+			html: post.html,
+			newer,
+			older,
+		}),
 	);
 }
 
 export function renderPostListItem(post: Post): string {
-	return `<li>
-<h2><a href="/posts/${post.slug}/">${post.title}</a></h2>
-${post.description ? `<p class="post-description">${post.description}</p>` : ""}
-<div class="post-meta">
-<time datetime="${post.publishDate.toISOString()}">${formatDate(post.publishDate)}</time>
-${post.tag ? `<span aria-hidden="true">·</span><a href="/tags/${post.tag}/">#${post.tag}</a>` : ""}
-</div>
-</li>`;
+	return renderTemplate("post-list-item", {
+		slug: post.slug,
+		title: post.title,
+		description: post.description
+			? renderTemplate("post-description", { description: post.description })
+			: "",
+		datetime: post.publishDate.toISOString(),
+		date: formatDate(post.publishDate),
+		tag: post.tag ? renderTemplate("post-list-tag", { tag: post.tag }) : "",
+	});
 }
 
-// renderIndex: home page = flat list of all posts.
-// Input: Post[] (sorted)
-// Output: HTML string
 export function renderIndex(posts: Post[]): string {
 	const items = posts.map(renderPostListItem).join("\n  ");
-	return renderLayout(
-		{ title: "Home", path: "/" },
-		`<h1>Posts</h1>
-<ul class="post-list">
-  ${items}
-</ul>`,
-	);
+	return renderLayout({ title: "Home", path: "/" }, renderTemplate("index", { items }));
 }
