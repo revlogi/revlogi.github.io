@@ -107,7 +107,9 @@ async function writeHtml(path: string, html: string): Promise<void> {
 async function copyDir(src: string, dest: string): Promise<void> {
 	if (!existsSync(src)) return;
 	await mkdir(dest, { recursive: true });
-	const entries = await Array.fromAsync(new Bun.Glob("*").scan({ cwd: src, absolute: false }));
+	const entries = await Array.fromAsync(
+		new Bun.Glob("*").scan({ cwd: src, absolute: false, onlyFiles: false }),
+	);
 	for (const entry of entries) {
 		const srcPath = join(src, entry);
 		const destPath = join(dest, entry);

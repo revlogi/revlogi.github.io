@@ -334,11 +334,18 @@ code {
 	color: var(--muted);
 }
 
+.friends-page {
+	margin-inline-start: 2ch;
+}
+
 .friends-list {
-	list-style: none;
-	max-width: 55ch;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.25rem 2.5rem;
+	max-width: 64ch;
 	padding: 0;
-	border-top: 1px solid var(--border);
+	margin: 0;
+	list-style: none;
 }
 
 .friends-list li {
@@ -348,26 +355,48 @@ code {
 
 .friends-list a {
 	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 0.75rem 0;
+	align-items: center;
+	gap: 0.9rem;
+	padding: 0.9rem 0.25rem;
 	color: var(--heading);
 	text-decoration: none;
 }
 
+.friend-avatar {
+	width: 2.65rem;
+	height: 2.65rem;
+	flex-shrink: 0;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 1px solid var(--border);
+	background: #f3f6f4;
+}
+
+.friend-info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	min-width: 0;
+}
+
 .friend-name {
 	font-family: var(--font-sans);
+	font-size: 1.05rem;
+	line-height: 1.25;
+	color: var(--heading);
 }
 
 .friend-domain {
 	color: var(--muted);
-	font-size: 0.9rem;
+	font-size: 0.88rem;
+	line-height: 1.3;
+	overflow-wrap: anywhere;
 }
 
 .friends-list a:hover .friend-name {
 	color: var(--link);
 	text-decoration: underline;
+	text-decoration-thickness: 1px;
 	text-underline-offset: 0.18em;
 }
 
@@ -420,8 +449,13 @@ code {
 }
 
 @media (max-width: 40rem) {
-	.home-posts {
+	.home-posts,
+	.friends-page {
 		margin-inline-start: 0;
+	}
+
+	.friends-list {
+		grid-template-columns: 1fr;
 	}
 
 	body {
@@ -436,11 +470,5 @@ code {
 
 	.site-nav {
 		justify-content: flex-start;
-	}
-
-	.friends-list a {
-		align-items: flex-start;
-		flex-direction: column;
-		gap: 0;
 	}
 }
