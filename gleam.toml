@@ -1,0 +1,9 @@
+name = "revlogi_blog"
+version = "1.0.0"
+target = "javascript"
+
+[javascript]
+runtime = "bun"
+
+[dependencies]
+gleam_stdlib = ">= 1.0.5 and < 2.0.0"

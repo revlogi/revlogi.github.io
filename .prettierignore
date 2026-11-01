@@ -6,3 +6,7 @@ node_modules
 
 pnpm-lock.yaml
 dist
+build
+.dist-stage-*
+.dist-backup-*
+*.gleam

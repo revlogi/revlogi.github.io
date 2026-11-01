@@ -1,42 +1,88 @@
 # AGENTS.md
 
-## 架构
+## Architecture
 
+```text
+content/post/**/*.md
+  -> content.gleam (split, decode, validate, render Markdown)
+  -> pipeline.gleam (sort, neighbours, tag groups, routes, HTML)
+  -> rss.gleam
+  -> build.gleam (output plan and staging orchestration)
+  -> runtime_ffi.mjs (filesystem effects)
+  -> dist/
 ```
-content/post/*.md  →  scan  →  parse (yaml + markdown-it + Shiki dual-theme)  →  render (HTML 模板替换)  →  emit  →  dist/*.html
-```
 
-每一阶段是纯数据变换：输入上一阶段输出 → 输出给下一阶段。`build.ts` 里 4 个 `// ---- N. SCAN / PARSE / RENDER / EMIT ----` 注释分隔。
+The application targets JavaScript and runs under Bun. Gleam owns application
+models, validation, sorting, grouping, templates, HTML/RSS composition, build
+sequencing, and output decisions. JavaScript adapters provide runtime and library
+primitives; do not move application policy back into adapters.
 
-## 命令（Bun）
+## Commands
 
-- `bun run build` — 构建 `dist/`
-- `bun run dev` — 构建 + 监听 + 热重载 dev 服务器 at localhost:3000
-- `NODE_ENV=production bun run build` — 生产构建（过滤 draft）
+Requires Gleam 1.19.2 and Bun 1.3.14 (the versions tested and pinned in CI).
 
-## 代码文件（src/ssg/）
+- `bun install --frozen-lockfile` — install JS libraries
+- `bun run build` — Gleam production build into `dist/`
+- `bun run dev` / `bun run serve` — initial build, HTTP server on port 3000, watcher and SSE reload
+- `PORT=4000 bun run dev` — choose another port
+- `bun run test` — compile Gleam and run Bun unit/integration tests
+- `bun run check` — Gleam formatting/type checks and Biome checks for JS/JSON
+- `bun run format` — Gleam formatter plus Prettier for other supported sources
 
-| 文件                | 作用                                                                 |
-| ------------------- | -------------------------------------------------------------------- |
-| `build.ts`          | 4 阶段调度 + I/O 辅助函数                                            |
-| `scan.ts`           | 扫 content/post/\*_/_.md，分割 frontmatter                           |
-| `parse.ts`          | yaml frontmatter + markdown-it(footnote/anchor/texmath) + Shiki 高亮 |
-| `types.ts`          | Post {slug, title, description, publishDate, draft, html} + PageMeta |
-| `config.ts`         | siteConfig（5 字段）                                                 |
-| `date.ts`           | formatDate + sortPosts                                               |
-| `render/template.ts` | 读取 HTML 模板并替换占位符 |
-| `templates/*.html` | 页面结构和可复用 HTML 片段 |
-| `render/layout.ts`  | renderLayout(meta, body) — HTML 外壳                                 |
-| `render/post.ts`    | renderPost(post) + renderIndex(posts)                                |
-| `styles/global.css` | 全局样式                                               |
-| `serve.ts`          | dev 热重载服务器（SSE）                                              |
-| `types/shims.d.ts`  | markdown-it-texmath 类型声明                                         |
+`NODE_ENV=production` does not enable draft filtering. Unknown metadata fields,
+including `draft`, are ignored. Do not claim filtering exists without implementing
+and testing it as a separate feature.
 
-## 方针
+## Files
 
-- `render/*.ts` 负责数据组织、条件判断和列表遍历，返回 HTML 字符串。无组件树，无 JSX，无第三方模板引擎
-- HTML 标记放在 `templates/*.html`，通过 `render/template.ts` 的 `renderTemplate(name, values)` 替换 `{{key}}` 占位符
-- 占位符原样插入，支持已渲染 HTML；只替换一轮，正文中的 `{{...}}` 不会被再次解析。缺少变量时构建报错
-- 模板每次渲染从磁盘读取，开发服务器会监听模板修改并自动重建
-- 要加功能：改 types.ts + parse.ts（解析）+ render/*.ts（数据）+ templates/*.html（结构）+ styles/global.css（样式）
-- 不需要我，自己加就是学习
+| File | Responsibility |
+| --- | --- |
+| `src/revlogi_blog.gleam` | Build CLI entry point and exit status |
+| `src/config.gleam` | Site configuration |
+| `src/content.gleam` | Frontmatter split, strict metadata validation, source-path diagnostics, parsed posts |
+| `src/slug.gleam` | Pure normalized post-relative path to slug |
+| `src/post_order.gleam` | Generic stable sorting and neighbour traversal |
+| `src/template.gleam` | Pure single-pass substitution with structured errors |
+| `src/page.gleam` | Post view models, article composition, site layout/navigation |
+| `src/listing.gleam` | Shared post-list item, homepage, tag page/index |
+| `src/static_pages.gleam` | About/Friends/Links |
+| `src/pipeline.gleam` | Complete HTML URL map and first-seen tag grouping |
+| `src/rss.gleam` | RSS data preparation, XML escaping, sorting and template composition |
+| `src/build.gleam` | Template loading, render plan, staging/output orchestration |
+| `src/runtime.gleam` | Typed FFI declarations |
+| `src/runtime_ffi.mjs` | YAML/date/Markdown bridges and filesystem primitives |
+| `src/markdown.mjs` | Markdown-it, KaTeX, Shiki initialization/rendering |
+| `src/dev.gleam` | Dev entry point, watch filtering and MIME policies |
+| `src/server.mjs` | Bun HTTP, filesystem watchers, serialized child builds and SSE |
+| `src/ssg/templates/` | HTML/XML markup, including `rss.xml` and `rss-item.xml` |
+| `src/ssg/styles/global.css` | Global styles |
+| `tests/` | Bun tests against compiled Gleam and runtime boundaries |
+
+## Contracts
+
+- Required frontmatter: nonblank string `title`, parseable string `publishDate`.
+- Optional `description` and `tag`: strings, default empty; wrong types are errors.
+- Invalid metadata stops the build and identifies the source file.
+- Dates retain the JS runtime parser/formatting behavior for compatibility with
+  existing human-readable dates. Date-only strings without a timezone can depend
+  on the environment; prefer explicit ISO timestamps when timezone stability matters.
+- Keep HTML/XML markup in `src/ssg/templates/`, not in Gleam string concatenation.
+  RSS uses a feed template and an item template; its renderer escapes text values
+  before substitution and propagates template errors before output is emitted.
+- Templates are loaded on each build. Values are inserted verbatim, including
+  rendered HTML. Only `{{ASCII_word_key}}` placeholders match. Replacement is
+  single-pass; missing values return errors. Escaping metadata would be a separate
+  behavior change, not an incidental migration fix.
+- Sorting is newest first and stable for ties. Neighbours use `Option`.
+- Tag groups retain first-seen tag order and sorted post order within each group.
+- Duplicate URL keys keep last-write-wins behavior. Dictionary iteration order is
+  not meaningful.
+- Validate/render everything before emitting. Write to a staging directory;
+  commit only when pages/assets/RSS succeed, restoring the previous directory if
+  the replacement rename fails. This is not a crash-atomic transaction.
+- The dev adapter serializes rebuilds and invokes a fresh Gleam build so generator
+  edits take effect. Restart the dev command after editing the dev-server adapter
+  or its watch/MIME policies. Do not run independent builds concurrently against
+  the same `dist/`.
+- Preserve templates/CSS/content outside the selected task. No JSX, component tree,
+  or third-party template engine is needed.
