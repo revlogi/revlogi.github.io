@@ -63,6 +63,7 @@ describe("metadata and scanning", () => {
 	test("retains source path and defaults optional strings", () => {
 		const post = ok(content.parse_post("content/post/example.md", document(valid)));
 		expect(post.source_path).toBe("content/post/example.md");
+		expect(post.draft).toBe(false);
 		expect(post.article.view.slug).toBe("example");
 		expect(post.article.view.description).toBe("");
 		expect(post.article.view.tag).toBe("");
@@ -78,6 +79,9 @@ describe("metadata and scanning", () => {
 		["numeric date", { ...valid, publishDate: 42 }, "publishDate"],
 		["null description", { ...valid, description: null }, "description"],
 		["boolean tag", { ...valid, tag: true }, "tag"],
+		["quoted draft", { ...valid, draft: "true" }, "draft"],
+		["numeric draft", { ...valid, draft: 1 }, "draft"],
+		["null draft", { ...valid, draft: null }, "draft"],
 	]) {
 		test(`rejects ${name} with source-file context`, () => {
 			const result = content.parse_post("content/post/bad.md", document(fields));
@@ -86,9 +90,25 @@ describe("metadata and scanning", () => {
 			expect(result[0]).toContain(key);
 		});
 	}
-	test("unknown fields, including draft, remain ignored", () => {
+	for (const draft of [true, false]) {
+		test(`decodes draft: ${draft}`, () => {
+			const post = ok(content.parse_post("content/post/example.md", document({ ...valid, draft })));
+			expect(post.draft).toBe(draft);
+		});
+	}
+	test("filters drafts without changing the supplied post order", () => {
+		const draft = ok(
+			content.parse_post("content/post/draft.md", document({ ...valid, draft: true })),
+		);
+		const published = ok(content.parse_post("content/post/published.md", document(valid)));
+		const input = toList([draft, published]);
+		expect([...content.visible_posts(input, false)]).toEqual([published]);
+		expect([...content.visible_posts(input, true)]).toEqual([draft, published]);
+		expect([...input]).toEqual([draft, published]);
+	});
+	test("unknown fields remain ignored", () => {
 		expect(
-			ok(content.parse_post("content/post/example.md", document({ ...valid, draft: true }))),
+			ok(content.parse_post("content/post/example.md", document({ ...valid, custom: true }))),
 		).toBeInstanceOf(content.Post);
 	});
 	test("reports invalid YAML with the source path", () => {

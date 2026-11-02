@@ -69,7 +69,8 @@ fn template_error(error: TemplateError, extension: String) -> String {
 
 /// Validate and render everything before touching the previous output.
 pub fn render_site() -> Result(Site, String) {
-  use posts <- result.try(content.load_posts())
+  use all_posts <- result.try(content.load_posts())
+  let posts = content.visible_posts(all_posts, runtime.include_drafts())
   use links_source <- result.try(runtime.read_text("content/page/links.md"))
   use links_html <- result.try(runtime.render_markdown(links_source))
   use templates <- result.try(load_templates())

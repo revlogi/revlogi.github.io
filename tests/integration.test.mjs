@@ -37,10 +37,10 @@ function workspace() {
 function post(path, header = 'title: "Example"\npublishDate: "6 July 2026"') {
 	writeFileSync(join(path, "content/post/example.md"), `---\n${header}\n---\n\n## Body\nHello.`);
 }
-function run(path) {
+function run(path, env = {}) {
 	return Bun.spawnSync(
 		["bun", "-e", `import { main } from ${JSON.stringify(mainModule)}; main();`],
-		{ cwd: path },
+		{ cwd: path, env: { ...process.env, INCLUDE_DRAFTS: "0", ...env } },
 	);
 }
 function unchanged(path) {
@@ -72,6 +72,64 @@ test("build emits clean URLs, RSS, assets, CSS and replaces old output", () => {
 	expect(readFileSync(join(path, "outside.css"), "utf8")).toBe(
 		"do not overwrite the symlink target",
 	);
+}, 10_000);
+
+test("drafts are opt-in and never leak into published pages, tags, RSS or neighbours", () => {
+	const path = workspace();
+	post(path, 'title: "Published"\npublishDate: "4 July 2026"\ntag: shared\ndraft: false');
+	writeFileSync(
+		join(path, "content/post/older.md"),
+		'---\ntitle: "Older"\npublishDate: "2 July 2026"\ntag: shared\n---\nOlder body.',
+	);
+	writeFileSync(
+		join(path, "content/post/draft.md"),
+		'---\ntitle: "Hidden Draft"\npublishDate: "6 July 2026"\ntag: secret\ndraft: true\n---\nUnfinished body.',
+	);
+
+	function expectPublishedOnly() {
+		expect(existsSync(join(path, "dist/posts/draft/index.html"))).toBe(false);
+		expect(existsSync(join(path, "dist/tags/secret/index.html"))).toBe(false);
+		for (const file of [
+			"index.html",
+			"rss.xml",
+			"tags/index.html",
+			"tags/shared/index.html",
+			"posts/example/index.html",
+			"posts/older/index.html",
+		]) {
+			const html = readFileSync(join(path, "dist", file), "utf8");
+			expect(html).not.toContain("Hidden Draft");
+			expect(html).not.toContain("/posts/draft/");
+			expect(html).not.toContain("/tags/secret/");
+		}
+		expect(readFileSync(join(path, "dist/tags/index.html"), "utf8")).toContain("(2)</li>");
+		expect(readFileSync(join(path, "dist/posts/example/index.html"), "utf8")).toContain(
+			'class="post-nav-older" href="/posts/older/"',
+		);
+		expect(readFileSync(join(path, "dist/posts/older/index.html"), "utf8")).toContain(
+			'class="post-nav-newer" href="/posts/example/"',
+		);
+	}
+
+	expect(run(path).exitCode).toBe(0);
+	expectPublishedOnly();
+	expect(run(path, { INCLUDE_DRAFTS: "1" }).exitCode).toBe(0);
+	expect(readFileSync(join(path, "dist/posts/draft/index.html"), "utf8")).toContain("Hidden Draft");
+	expect(readFileSync(join(path, "dist/index.html"), "utf8")).toContain("Hidden Draft");
+	expect(readFileSync(join(path, "dist/rss.xml"), "utf8")).toContain("Hidden Draft");
+	expect(existsSync(join(path, "dist/tags/secret/index.html"))).toBe(true);
+	// Replacing a preview build must remove stale draft pages and tags as well.
+	expect(run(path).exitCode).toBe(0);
+	expectPublishedOnly();
+}, 10_000);
+
+test("invalid draft metadata still fails a default build", () => {
+	const path = workspace();
+	post(path, 'publishDate: "6 July 2026"\ndraft: true');
+	const result = run(path);
+	expect(result.exitCode).toBe(1);
+	expect(result.stderr.toString()).toContain("content/post/example.md: title");
+	unchanged(path);
 }, 10_000);
 
 test("invalid metadata exits unsuccessfully and preserves previous output", () => {
@@ -207,9 +265,9 @@ test("dev HTTP, SSE, source watching and failed rebuild handling", async () => {
 	}
 }, 15_000);
 
-test("the real dev command recompiles Gleam changes before reloading", async () => {
+test("the real dev command preserves draft preview across Gleam rebuilds", async () => {
 	const path = workspace();
-	post(path);
+	post(path, 'title: "Example"\npublishDate: "6 July 2026"\ndraft: true');
 	cpSync(join(root, "src"), join(path, "src"), { recursive: true });
 	cpSync(join(root, "build/packages"), join(path, "build/packages"), { recursive: true });
 	for (const file of ["gleam.toml", "manifest.toml", "package.json"]) {
@@ -218,7 +276,7 @@ test("the real dev command recompiles Gleam changes before reloading", async () 
 	symlinkSync(join(root, "node_modules"), join(path, "node_modules"), "dir");
 	const child = spawn("bun", ["run", "dev"], {
 		cwd: path,
-		env: { ...process.env, PORT: "0" },
+		env: { ...process.env, PORT: "0", INCLUDE_DRAFTS: "1" },
 		detached: true,
 		stdio: ["ignore", "pipe", "pipe"],
 	});
@@ -236,6 +294,7 @@ test("the real dev command recompiles Gleam changes before reloading", async () 
 		while (!output.includes("http://localhost:") && Date.now() < deadline) await Bun.sleep(25);
 		expect(output).toContain("http://localhost:");
 		const url = output.match(/http:\/\/localhost:\d+/)[0];
+		expect(await (await fetch(`${url}/posts/example/`)).text()).toContain("<h1>Example</h1>");
 		const response = await fetch(`${url}/__reload`, { signal: abort.signal });
 		const reader = response.body.getReader();
 		await reader.read();
@@ -252,6 +311,7 @@ test("the real dev command recompiles Gleam changes before reloading", async () 
 		]);
 		expect(new TextDecoder().decode(event.value)).toContain("data: reload");
 		expect(await (await fetch(url)).text()).toContain("Home • Rebuilt Gleam Blog");
+		expect(await (await fetch(`${url}/posts/example/`)).text()).toContain("<h1>Example</h1>");
 	} finally {
 		abort.abort();
 		try {

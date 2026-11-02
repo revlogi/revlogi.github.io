@@ -20,6 +20,9 @@ pub fn parse_date(
   value: String,
 ) -> Result(#(Int, String, String, String), String)
 
+@external(javascript, "./runtime_ffi.mjs", "includeDrafts")
+pub fn include_drafts() -> Bool
+
 @external(javascript, "./runtime_ffi.mjs", "beginOutput")
 pub fn begin_output() -> Result(String, String)
 

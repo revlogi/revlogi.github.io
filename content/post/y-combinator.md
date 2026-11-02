@@ -3,6 +3,7 @@ title: "Recursion without names"
 description: "y combinator #unfinished"
 publishDate: "6 July 2026"
 tag: computation
+draft: true
 ---
 
 ## Why Names aren't enough

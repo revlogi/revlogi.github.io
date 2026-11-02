@@ -47,8 +47,32 @@ Write Markdown here.
 The path determines `/posts/example/`, not the title. Nested `index.md` files use
 their containing directory as the slug. Titles and dates are required; optional
 summary/tag fields must be strings if supplied. Invalid metadata stops the build
-with a source-file diagnostic and leaves the previous output untouched. There is
-no draft filtering.
+with a source-file diagnostic and leaves the previous output untouched.
+
+## Drafts
+
+Add an unquoted boolean to an unfinished post's frontmatter:
+
+```yaml
+draft: true
+```
+
+Missing `draft` defaults to `false`. Both `build` and `dev` hide drafts by default:
+no article page, homepage entry, tag entry/count, RSS item, or neighbour link is
+created. A normal rebuild also removes any draft pages left by a preview build.
+Draft metadata must still pass validation, including its title and date.
+
+Explicitly include drafts for local preview:
+
+```sh
+INCLUDE_DRAFTS=1 bun run dev
+# Or generate a preview build:
+INCLUDE_DRAFTS=1 bun run build
+```
+
+Only the exact value `1` enables preview; `NODE_ENV` does not affect visibility.
+To publish, remove `draft: true` or change it to `draft: false`. Draft Markdown
+remains in the repository; this is a publication switch, not privacy protection.
 
 ## Architecture
 

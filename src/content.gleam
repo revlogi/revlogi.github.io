@@ -14,11 +14,17 @@ pub type Metadata {
     description: String,
     publish_date: String,
     tag: String,
+    draft: Bool,
   )
 }
 
 pub type Post {
-  Post(article: pipeline.Article, rss_date: String, source_path: String)
+  Post(
+    article: pipeline.Article,
+    rss_date: String,
+    source_path: String,
+    draft: Bool,
+  )
 }
 
 pub fn validate_metadata(
@@ -30,7 +36,8 @@ pub fn validate_metadata(
     use date <- decode.field("publishDate", decode.string)
     use description <- decode.optional_field("description", "", decode.string)
     use tag <- decode.optional_field("tag", "", decode.string)
-    decode.success(Metadata(title, description, date, tag))
+    use draft <- decode.optional_field("draft", False, decode.bool)
+    decode.success(Metadata(title, description, date, tag, draft))
   }
   use metadata <- result.try(
     decode.run(data, decoder)
@@ -99,7 +106,12 @@ pub fn parse_post(path: String, raw: String) -> Result(Post, String) {
       metadata.tag,
       html,
     )
-  Ok(Post(pipeline.Article(view, timestamp), rss_date, path))
+  Ok(Post(pipeline.Article(view, timestamp), rss_date, path, metadata.draft))
+}
+
+/// Apply publication policy once, before HTML pages, navigation, tags and RSS.
+pub fn visible_posts(posts: List(Post), include_drafts: Bool) -> List(Post) {
+  list.filter(posts, fn(post) { include_drafts || !post.draft })
 }
 
 pub fn load_posts() -> Result(List(Post), String) {

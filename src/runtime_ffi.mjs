@@ -49,6 +49,10 @@ export function parseDate(value) {
 	});
 }
 
+export function includeDrafts() {
+	return process.env.INCLUDE_DRAFTS === "1";
+}
+
 export function beginOutput() {
 	return attempt(() => mkdtempSync(join(process.cwd(), ".dist-stage-")));
 }

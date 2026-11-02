@@ -11,7 +11,8 @@ Before switching implementations, the original build output was saved locally.
 The new output was compared recursively against it: all 17 HTML pages, RSS, CSS,
 and public assets were byte-for-byte identical. That local baseline is not a
 repository fixture; durable tests cover the contracts below without depending on
-an obsolete TypeScript implementation.
+an obsolete TypeScript implementation. This is the original migration baseline;
+the later draft feature intentionally excludes unfinished posts from normal builds.
 
 CI builds the new application. The workflow was updated locally; a remote GitHub
 Actions run/deployment is not performed by this migration.
@@ -75,8 +76,9 @@ change the home list because summaries use metadata, not article HTML.
   slugs/routes would be a separate feature.
 - Hidden public files are skipped, matching the original scanner. Public assets
   are copied after HTML, styles afterward, and generated RSS last.
-- Unknown metadata fields, including `draft`, are ignored. The original repository
-  instructions claimed draft filtering, but the implementation never had it.
+- Unknown metadata fields are ignored. Draft filtering was absent in the original
+  implementation and during the migration; it was subsequently added as an
+  explicit feature, described below.
 
 ## Intentional changes agreed during the walkthrough
 
@@ -92,6 +94,24 @@ fallback for missing dates. Existing valid posts retain their output. JS date
 parsing/formatting is deliberately retained, including human-readable date strings
 and environment-dependent handling of dates without explicit timezones; it is not
 a newly specified strict calendar grammar.
+
+### Draft publication policy (added after migration)
+
+`draft` is now an optional boolean, defaulting to `false`. Wrong types are rejected
+with source-file diagnostics. All posts, including hidden drafts, still require
+valid title/date metadata.
+
+`build.render_site()` filters the validated post collection once before passing
+it to HTML generation and RSS. Thus drafts cannot enter article pages, the homepage,
+neighbour links, tag pages/counts, or the feed. The existing staged replacement
+also removes stale output if a published post becomes a draft or a preview build
+is followed by a normal build.
+
+Both build and dev hide drafts unless `INCLUDE_DRAFTS=1` is explicitly set. The
+runtime bridge reads that flag; Gleam applies the visibility policy. Dev child
+builds inherit it, preserving preview mode after source edits. `NODE_ENV` does not
+control this behavior. Marking `content/post/y-combinator.md` as a draft provides
+the first real use. To publish it, remove the flag or set `draft: false`.
 
 ### Safer output
 
@@ -145,5 +165,5 @@ real posts, templates, or the site's existing output.
   behavior is preserved, including its trust assumptions.
 - Consider explicit timezone/date-format rules if cross-environment determinism is
   required beyond compatibility with the original runtime behavior.
-- Consider duplicate-route validation, draft support, or stronger crash/concurrent
-  build guarantees as deliberate features with separate tests.
+- Consider duplicate-route validation or stronger crash/concurrent build guarantees
+  as deliberate features with separate tests.

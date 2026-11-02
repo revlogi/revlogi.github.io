@@ -29,9 +29,9 @@ Requires Gleam 1.19.2 and Bun 1.3.14 (the versions tested and pinned in CI).
 - `bun run check` — Gleam formatting/type checks and Biome checks for JS/JSON
 - `bun run format` — Gleam formatter plus Prettier for other supported sources
 
-`NODE_ENV=production` does not enable draft filtering. Unknown metadata fields,
-including `draft`, are ignored. Do not claim filtering exists without implementing
-and testing it as a separate feature.
+Drafts are hidden by default in both build and dev. Use `INCLUDE_DRAFTS=1 bun run
+dev` (or `build`) to explicitly include them. Only the exact value `1` enables
+preview; `NODE_ENV` does not affect draft visibility. Do not enable preview in CI.
 
 ## Files
 
@@ -62,7 +62,11 @@ and testing it as a separate feature.
 
 - Required frontmatter: nonblank string `title`, parseable string `publishDate`.
 - Optional `description` and `tag`: strings, default empty; wrong types are errors.
-- Invalid metadata stops the build and identifies the source file.
+- Optional `draft`: boolean, default false; quoted strings/numbers/null are errors.
+- Invalid metadata stops the build and identifies the source file, including for
+  hidden drafts. Filter validated posts once in `build.render_site()` before
+  sorting, neighbours, tag groups/counts, page rendering and RSS so every generated
+  view uses the same publication set. Staged replacement removes stale draft pages.
 - Dates retain the JS runtime parser/formatting behavior for compatibility with
   existing human-readable dates. Date-only strings without a timezone can depend
   on the environment; prefer explicit ISO timestamps when timezone stability matters.
