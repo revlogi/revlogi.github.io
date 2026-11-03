@@ -30,6 +30,7 @@ function workspace() {
 	mkdirSync(join(path, "dist"));
 	writeFileSync(join(path, "dist/previous.txt"), "previous output");
 	writeFileSync(join(path, "content/page/links.md"), "# Links\n\nExample.");
+	writeFileSync(join(path, "content/page/about.md"), "An **editable** introduction.");
 	cpSync(join(root, "src/ssg/templates"), join(path, "src/ssg/templates"), { recursive: true });
 	cpSync(join(root, "src/ssg/styles"), join(path, "src/ssg/styles"), { recursive: true });
 	return path;
@@ -72,6 +73,31 @@ test("build emits clean URLs, RSS, assets, CSS and replaces old output", () => {
 	expect(readFileSync(join(path, "outside.css"), "utf8")).toBe(
 		"do not overwrite the symlink target",
 	);
+}, 10_000);
+
+test("About renders Markdown and picks up content edits on rebuild", () => {
+	const path = workspace();
+	expect(run(path).exitCode).toBe(0);
+	const output = join(path, "dist/about/index.html");
+	expect(readFileSync(output, "utf8")).toContain("An <strong>editable</strong> introduction.");
+	writeFileSync(
+		join(path, "content/page/about.md"),
+		"Updated [profile](https://example.com).\n\n{{title}}",
+	);
+	expect(run(path).exitCode).toBe(0);
+	const html = readFileSync(output, "utf8");
+	expect(html).toContain('<a href="https://example.com">profile</a>');
+	expect(html).toContain("{{title}}");
+	expect(html).not.toContain("An <strong>editable</strong> introduction.");
+}, 10_000);
+
+test("missing About Markdown preserves previous output", () => {
+	const path = workspace();
+	rmSync(join(path, "content/page/about.md"));
+	const result = run(path);
+	expect(result.exitCode).toBe(1);
+	expect(result.stderr.toString()).toContain("content/page/about.md");
+	unchanged(path);
 }, 10_000);
 
 test("drafts are opt-in and never leak into published pages, tags, RSS or neighbours", () => {

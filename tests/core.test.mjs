@@ -220,17 +220,28 @@ test("grouping preserves first-seen order and group post order", () => {
 test("full HTML pipeline includes static pages without post data", () => {
 	const templates = ok(build.load_templates());
 	const pages = new Map(
-		to_list(ok(pipeline.render_all(config.site(), templates, toList([]), "<p>{{title}}</p>"))),
+		to_list(
+			ok(
+				pipeline.render_all(
+					config.site(),
+					templates,
+					toList([]),
+					"<p>About {{title}}</p>",
+					"<p>{{title}}</p>",
+				),
+			),
+		),
 	);
 	expect([...pages.keys()].sort()).toEqual(["/", "/about/", "/friends/", "/links/", "/tags/"]);
 	expect(pages.get("/links/")).toContain("<p>{{title}}</p>");
+	expect(pages.get("/about/")).toContain("<p>About {{title}}</p>");
 });
 test("pipeline sorts full payloads and retains duplicate-route behavior", () => {
 	const templates = ok(build.load_templates());
 	const old = new pipeline.Article(view("same", "old"), 2);
 	const newer = new pipeline.Article(view("same", "new"), 6);
 	const pages = new Map(
-		to_list(ok(pipeline.render_all(config.site(), templates, toList([old, newer]), ""))),
+		to_list(ok(pipeline.render_all(config.site(), templates, toList([old, newer]), "", ""))),
 	);
 	expect(pages.size).toBe(8);
 	expect(pages.get("/posts/same/")).toContain("/tags/old/");
@@ -246,6 +257,7 @@ test("template errors propagate without a partial collection", () => {
 		broken,
 		toList([new pipeline.Article(view("post"), 0)]),
 		"",
+		"",
 	);
 	expect(result).toBeInstanceOf(GleamError);
 	expect(result[0].template_name).toBe("post");
@@ -256,7 +268,7 @@ test("equal-count tags retain first-seen rather than alphabetical order", () => 
 		new pipeline.Article(view("first", "z-tag"), 0),
 		new pipeline.Article(view("second", "a-tag"), 0),
 	]);
-	const pages = new Map(to_list(ok(pipeline.render_all(config.site(), templates, input, ""))));
+	const pages = new Map(to_list(ok(pipeline.render_all(config.site(), templates, input, "", ""))));
 	const html = pages.get("/tags/");
 	expect(html.indexOf('href="/tags/z-tag/"')).toBeLessThan(html.indexOf('href="/tags/a-tag/"'));
 });
@@ -270,7 +282,13 @@ test("empty optional fragments are not evaluated", () => {
 		layout: templates.layout.withFields({ post_tag: "{{missing}}", post_neighbour: "{{missing}}" }),
 	});
 	const pages = ok(
-		pipeline.render_all(config.site(), broken, toList([new pipeline.Article(view("only"), 0)]), ""),
+		pipeline.render_all(
+			config.site(),
+			broken,
+			toList([new pipeline.Article(view("only"), 0)]),
+			"",
+			"",
+		),
 	);
 	expect(new Map(to_list(pages)).has("/posts/only/")).toBe(true);
 });
@@ -282,9 +300,9 @@ test("empty collections do not evaluate item templates", () => {
 			tag_item: "{{missing}}",
 		}),
 	});
-	expect([...to_list(ok(pipeline.render_all(config.site(), broken, toList([]), "")))]).toHaveLength(
-		5,
-	);
+	expect([
+		...to_list(ok(pipeline.render_all(config.site(), broken, toList([]), "", ""))),
+	]).toHaveLength(5);
 });
 test("RSS escapes XML and sorts articles", () => {
 	const old = ok(
@@ -342,8 +360,15 @@ test("Markdown retains anchors, math, footnotes, and dual-theme highlighting", (
 	expect(html).toContain("--shiki-dark");
 	expect(html).toContain('class="footnotes"');
 });
+test("Haskell code receives dual-theme syntax highlighting", () => {
+	const html = ok(runtime.render_markdown('```haskell\nmain = putStrLn "hello"\n```'));
+	expect(html).toContain('class="shiki');
+	expect(html).toContain("--shiki-dark");
+});
 test("unsupported code language falls back to escaped code", () => {
-	expect(ok(runtime.render_markdown("```unknown-language\n<bad>\n```"))).toContain("&lt;bad&gt;");
+	expect(ok(runtime.render_markdown("```unknown-language\n<bad>\n```"))).toBe(
+		'<pre><code><span class="line">&lt;bad&gt;</span></code></pre>\n',
+	);
 });
 for (const [url, expected] of [
 	["/", "index.html"],

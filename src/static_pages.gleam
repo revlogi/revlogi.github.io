@@ -9,7 +9,7 @@ pub type Templates {
 }
 
 pub type StaticPage {
-  About
+  About(html: String)
   Friends
   Links(html: String)
 }
@@ -21,7 +21,13 @@ pub fn render(
   kind: StaticPage,
 ) -> Result(String, TemplateError) {
   let #(name, source, title, path, values) = case kind {
-    About -> #("about", templates.about, "About", "/about/", dict.new())
+    About(html) -> #(
+      "about",
+      templates.about,
+      "About",
+      "/about/",
+      dict.from_list([#("html", html)]),
+    )
     Friends -> #(
       "friends",
       templates.friends,

@@ -29,6 +29,7 @@ pub fn render_all(
   config: SiteConfig,
   templates: Templates,
   articles: List(Article),
+  about_html: String,
   links_html: String,
 ) -> Result(Dict(String, String), TemplateError) {
   let sorted =
@@ -44,7 +45,7 @@ pub fn render_all(
     config,
     templates.layout,
     templates.static_pages,
-    static_pages.About,
+    static_pages.About(about_html),
   ))
   use friends <- result.try(static_pages.render(
     config,

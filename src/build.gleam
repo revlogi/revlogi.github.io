@@ -71,6 +71,8 @@ fn template_error(error: TemplateError, extension: String) -> String {
 pub fn render_site() -> Result(Site, String) {
   use all_posts <- result.try(content.load_posts())
   let posts = content.visible_posts(all_posts, runtime.include_drafts())
+  use about_source <- result.try(runtime.read_text("content/page/about.md"))
+  use about_html <- result.try(runtime.render_markdown(about_source))
   use links_source <- result.try(runtime.read_text("content/page/links.md"))
   use links_html <- result.try(runtime.render_markdown(links_source))
   use templates <- result.try(load_templates())
@@ -79,6 +81,7 @@ pub fn render_site() -> Result(Site, String) {
       config.site(),
       templates,
       list.map(posts, fn(post) { post.article }),
+      about_html,
       links_html,
     )
     |> result.map_error(fn(error) { template_error(error, "html") }),

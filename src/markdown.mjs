@@ -8,7 +8,20 @@ import { createHighlighter } from "shiki";
 // Async library initialization finishes before Gleam's synchronous main runs.
 const highlighter = await createHighlighter({
 	themes: ["vitesse-light", "vitesse-dark"],
-	langs: ["bash", "js", "ts", "python", "rust", "c", "cpp", "css", "html", "json", "diff"],
+	langs: [
+		"bash",
+		"js",
+		"ts",
+		"python",
+		"haskell",
+		"rust",
+		"c",
+		"cpp",
+		"css",
+		"html",
+		"json",
+		"diff",
+	],
 });
 const md = new MarkdownIt({
 	html: true,
@@ -30,7 +43,7 @@ const md = new MarkdownIt({
 			.escapeHtml(code)
 			.split("\n")
 			.map((line) => line || " ");
-		return `<pre><code>\n${lines.map((line) => `<span class="line">${line}</span>`).join("\n")}\n</code></pre>`;
+		return `<pre><code>${lines.map((line) => `<span class="line">${line}</span>`).join("\n")}</code></pre>`;
 	},
 });
 md.use(footnote);
