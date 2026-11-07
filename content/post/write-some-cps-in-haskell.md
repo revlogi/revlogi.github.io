@@ -1,5 +1,5 @@
 ---
-title: "Write Some CPS in Haskell - Part 1"
+title: "Writing Some CPS in Haskell - Part1"
 description: "Exploring Continuation-Passing Style in Haskell through recursive warm-ups, merge sort, and a small interpreter"
 publishDate: "2 November 2026"
 tag: computation
@@ -18,21 +18,21 @@ Here are four classic recursive functions:
 ```haskell
 factorial :: Int -> Int
 factorial 0 = 1
-factorial n = n * Factorial (n - 1)
+factorial n = n * factorial (n - 1)
 
 fibonacci :: Int -> Int
 fibonacci 0 = 0
 fibonacci 1 = 1
-fibonacci n = Fibonacci (n - 1) + Fibonacci (n - 2)
+fibonacci n = fibonacci (n - 1) + fibonacci (n - 2)
 
 
 length :: [a] -> Int
 length [] = 0
-length (x : xs) = 1 + Length xs
+length (x : xs) = 1 + length xs
 
 map :: (a -> b) -> [a] -> [b]
 map f [] = []
-map f (x : xs) = f x : Map f xs
+map f (x : xs) = f x : map f xs
 ```
 
 It's not hard to transform them into CPS functions. For `factorial`, we simply put the multiplication into a closure and pass it along:
@@ -78,6 +78,37 @@ cpsFibonacci n k =
 		cpsFibonacci (n - 2) $ \b ->
 			k $ a + b
 ```
+
+Understanding this is important for the rest of the post, so let's trace a simple example:
+
+```haskell
+cpsFibonacci 2 id =
+	cpsFibonacci 1 $ \a ->
+		cpsFibonacci 0 $ \b ->
+			id $ a + b
+```
+
+First, `cpsFibonacci 1` unfolds to:
+
+```haskell
+(\a -> cpsFibonacci 0 $ \b -> id $ a + b) 1
+```
+
+which simplifies to:
+
+```haskell
+cpsFibonacci 0 $ \b -> id $ 1 + b
+```
+
+Then, unfolding `cpsFibonacci 0`, it becomes:
+
+```haskell
+(\b -> id $ 1 + b) 0
+```
+
+which finally gives `id $ 1 + 0`, or `1`.
+
+For larger `n`, you can think of `cpsFibonacci (n - 1)` and `cpsFibonacci (n - 2)` as single units, and they will unfold just like the simple case above.
 
 ## A Real Challenge
 

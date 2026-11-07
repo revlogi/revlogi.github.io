@@ -1,13 +1,9 @@
-Hi, I'm an undergraduate student at USTB, just getting started with computer science and programming. Currently, I'm into programming languages and computer architecture. I hope to build some interesting things and share what I learn along the way.
+Hi, I'm an undergraduate studying computer science at the University of Science and Technology Beijing (USTB).
+
+I'm interested in programming languages and computer architectures, especially the abstractions that connect the two.
+
+I like taking things apart and building small versions of them to understand how they work. This blog is where I write about those explorations. I try to capture not just what I've learnt, but also the questions, experiments, and wrong turns along the way.
+
+English is my second language, so I rely on AI to help shape the wording and structure of most posts.
 
 You can find me on [GitHub](https://github.com/revlogi) or [Zhihu](https://www.zhihu.com/people/corrupt-huan-ying).
-
-Most posts begin with my own ideas and rough drafts, with substantial help from AI in shaping the final text.
-
-I have too many ideas I want to share, but not enough energy to turn them all into blog posts. Here are a few topics I might write about in the future:
-
-- First Experience with CUDA
-- Refactoring My Blog in Gleam
-- How I Write Articles with AI
-- Fat Pointers (Making C Better)
-- Memory Management
