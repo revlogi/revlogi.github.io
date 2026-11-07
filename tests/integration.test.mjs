@@ -102,14 +102,14 @@ test("missing About Markdown preserves previous output", () => {
 
 test("drafts are opt-in and never leak into published pages, tags, RSS or neighbours", () => {
 	const path = workspace();
-	post(path, 'title: "Published"\npublishDate: "4 July 2026"\ntag: shared\ndraft: false');
+	post(path, 'title: "Published"\npublishDate: "4 July 2026"\ntags: [shared, extra]\ndraft: false');
 	writeFileSync(
 		join(path, "content/post/older.md"),
-		'---\ntitle: "Older"\npublishDate: "2 July 2026"\ntag: shared\n---\nOlder body.',
+		'---\ntitle: "Older"\npublishDate: "2 July 2026"\ntags: [shared]\n---\nOlder body.',
 	);
 	writeFileSync(
 		join(path, "content/post/draft.md"),
-		'---\ntitle: "Hidden Draft"\npublishDate: "6 July 2026"\ntag: secret\ndraft: true\n---\nUnfinished body.',
+		'---\ntitle: "Hidden Draft"\npublishDate: "6 July 2026"\ntags: [secret]\ndraft: true\n---\nUnfinished body.',
 	);
 
 	function expectPublishedOnly() {
@@ -179,7 +179,7 @@ test("failed asset copy cleans staging and preserves previous output", () => {
 
 test("output paths cannot escape staging", () => {
 	const path = workspace();
-	post(path, 'title: "Example"\npublishDate: "6 July 2026"\ntag: "../../escape"');
+	post(path, 'title: "Example"\npublishDate: "6 July 2026"\ntags: ["../../escape"]');
 	const result = run(path);
 	expect(result.exitCode).toBe(1);
 	expect(result.stderr.toString()).toContain("escapes destination");

@@ -13,7 +13,7 @@ pub type Metadata {
     title: String,
     description: String,
     publish_date: String,
-    tag: String,
+    tags: List(String),
     draft: Bool,
   )
 }
@@ -35,9 +35,9 @@ pub fn validate_metadata(
     use title <- decode.field("title", decode.string)
     use date <- decode.field("publishDate", decode.string)
     use description <- decode.optional_field("description", "", decode.string)
-    use tag <- decode.optional_field("tag", "", decode.string)
+    use tags <- decode.optional_field("tags", [], decode.list(decode.string))
     use draft <- decode.optional_field("draft", False, decode.bool)
-    decode.success(Metadata(title, description, date, tag, draft))
+    decode.success(Metadata(title, description, date, list.unique(tags), draft))
   }
   use metadata <- result.try(
     decode.run(data, decoder)
@@ -56,9 +56,13 @@ pub fn validate_metadata(
       )
     }),
   )
-  case string.trim(metadata.title) {
-    "" -> Error(path <> ": title must not be blank")
-    _ -> Ok(metadata)
+  case
+    string.trim(metadata.title),
+    list.any(metadata.tags, fn(tag) { string.trim(tag) == "" })
+  {
+    "", _ -> Error(path <> ": title must not be blank")
+    _, True -> Error(path <> ": tags must not contain blank values")
+    _, False -> Ok(metadata)
   }
 }
 
@@ -103,7 +107,7 @@ pub fn parse_post(path: String, raw: String) -> Result(Post, String) {
       metadata.description,
       iso,
       display,
-      metadata.tag,
+      metadata.tags,
       html,
     )
   Ok(Post(pipeline.Article(view, timestamp), rss_date, path, metadata.draft))

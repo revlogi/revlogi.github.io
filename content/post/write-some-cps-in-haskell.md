@@ -2,7 +2,7 @@
 title: "Writing Some CPS in Haskell - Part1"
 description: "Exploring Continuation-Passing Style in Haskell through recursive warm-ups, merge sort, and a small interpreter"
 publishDate: "2 November 2026"
-tag: computation
+tags: [pl, haskell]
 ---
 
 Recently, I learnt about Continuation-Passing Style (CPS) which I find really fascinating. I came across [this worksheet](https://www.cs.toronto.edu/~lczhang/324/ex/ex10.pdf), and it turned out to be a great practice for writing CPS in Haskell.

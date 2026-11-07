@@ -36,15 +36,15 @@ pub fn render_post_list_item(
         dict.from_list([#("description", post.description)]),
       )
   })
-  use tag <- result.try(case post.tag {
-    "" -> Ok("")
-    _ ->
+  use tags <- result.try(
+    list.try_map(post.tags, fn(tag) {
       template.substitute(
         "post-list-tag",
         templates.post_list_tag,
-        dict.from_list([#("tag", post.tag)]),
+        dict.from_list([#("tag", tag)]),
       )
-  })
+    }),
+  )
   template.substitute(
     "post-list-item",
     templates.post_list_item,
@@ -54,7 +54,7 @@ pub fn render_post_list_item(
       #("description", description),
       #("datetime", post.datetime),
       #("date", post.date),
-      #("tag", tag),
+      #("tag", string.concat(tags)),
     ]),
   )
 }

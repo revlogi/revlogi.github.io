@@ -121,15 +121,17 @@ pub fn render_all(
 pub fn group_tags(posts: List(PostView)) -> List(TagGroup) {
   let #(groups, tag_order) =
     list.fold(posts, #(dict.new(), []), fn(state, post) {
-      let #(groups, order) = state
-      case post.tag {
-        "" -> state
-        tag ->
-          case dict.get(groups, tag) {
-            Ok(items) -> #(dict.insert(groups, tag, [post, ..items]), order)
-            Error(Nil) -> #(dict.insert(groups, tag, [post]), [tag, ..order])
-          }
-      }
+      list.fold(list.unique(post.tags), state, fn(inner_state, tag) {
+        let #(groups, order) = inner_state
+        case tag {
+          "" -> inner_state
+          _ ->
+            case dict.get(groups, tag) {
+              Ok(items) -> #(dict.insert(groups, tag, [post, ..items]), order)
+              Error(Nil) -> #(dict.insert(groups, tag, [post]), [tag, ..order])
+            }
+        }
+      })
     })
   tag_order
   |> list.reverse

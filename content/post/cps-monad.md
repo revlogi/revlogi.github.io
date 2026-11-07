@@ -2,7 +2,7 @@
 title: "Writing Some CPS in Haskell - Appendix: The Monad Hidden in CPS"
 description: "Exploring Continuation-Passing Style in Haskell through recursive warm-ups, merge sort, and a small interpreter"
 publishDate: "4 November 2026"
-tag: computation
+tags: [pl, haskell]
 draft: true
 ---
 

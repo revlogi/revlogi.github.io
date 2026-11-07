@@ -60,14 +60,23 @@ describe("metadata and scanning", () => {
 	test("leaves a document without frontmatter intact", () => {
 		expect(content.split_frontmatter("## Hello\n")).toEqual(["", "## Hello\n"]);
 	});
-	test("retains source path and defaults optional strings", () => {
+	test("retains source path and defaults optional fields", () => {
 		const post = ok(content.parse_post("content/post/example.md", document(valid)));
 		expect(post.source_path).toBe("content/post/example.md");
 		expect(post.draft).toBe(false);
 		expect(post.article.view.slug).toBe("example");
 		expect(post.article.view.description).toBe("");
-		expect(post.article.view.tag).toBe("");
+		expect([...post.article.view.tags]).toEqual([]);
 		expect(post.article.view.html).toContain('<h2 id="body"');
+	});
+	test("decodes and deduplicates multiple tags in first-seen order", () => {
+		const post = ok(
+			content.parse_post(
+				"content/post/example.md",
+				document({ ...valid, tags: ["pl", "haskell", "pl"] }),
+			),
+		);
+		expect([...post.article.view.tags]).toEqual(["pl", "haskell"]);
 	});
 	for (const [name, fields, key] of [
 		["missing title", { publishDate: valid.publishDate }, "title"],
@@ -78,7 +87,9 @@ describe("metadata and scanning", () => {
 		["blank date", { ...valid, publishDate: "" }, "publishDate"],
 		["numeric date", { ...valid, publishDate: 42 }, "publishDate"],
 		["null description", { ...valid, description: null }, "description"],
-		["boolean tag", { ...valid, tag: true }, "tag"],
+		["non-list tags", { ...valid, tags: "pl" }, "tags"],
+		["non-string tag item", { ...valid, tags: [true] }, "tags"],
+		["blank tag item", { ...valid, tags: ["pl", "  "] }, "tags"],
 		["quoted draft", { ...valid, draft: "true" }, "draft"],
 		["numeric draft", { ...valid, draft: 1 }, "draft"],
 		["null draft", { ...valid, draft: null }, "draft"],
@@ -187,24 +198,24 @@ for (const { name, rows, expected } of orderCases) {
 	});
 }
 
-function view(slug, tag = "") {
+function view(slug, ...tags) {
 	return new PostView(
 		slug,
 		slug,
 		"",
 		"2026-07-06T00:00:00.000Z",
 		"6 Jul 2026",
-		tag,
+		toList(tags),
 		"<p>{{title}}</p>",
 	);
 }
 
-test("grouping preserves first-seen order and group post order", () => {
+test("grouping preserves first-seen order and group post order across multiple tags", () => {
 	const groups = pipeline.group_tags(
 		toList([
-			view("first", "z"),
+			view("first", "z", "shared"),
 			view("empty"),
-			view("second", "a"),
+			view("second", "a", "shared"),
 			view("last", "z"),
 			view("zero", "0"),
 		]),
@@ -213,6 +224,7 @@ test("grouping preserves first-seen order and group post order", () => {
 		[...groups].map((group) => [group.tag, [...group.posts].map((post) => post.slug)]),
 	).toEqual([
 		["z", ["first", "last"]],
+		["shared", ["first", "second"]],
 		["a", ["second"]],
 		["0", ["zero"]],
 	]);

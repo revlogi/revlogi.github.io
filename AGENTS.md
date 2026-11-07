@@ -61,7 +61,8 @@ preview; `NODE_ENV` does not affect draft visibility. Do not enable preview in C
 ## Contracts
 
 - Required frontmatter: nonblank string `title`, parseable string `publishDate`.
-- Optional `description` and `tag`: strings, default empty; wrong types are errors.
+- Optional `description`: string, default empty; wrong types are errors.
+- Optional `tags`: list of nonblank strings, default empty, deduplicated in first-seen order; wrong types or blank entries are errors.
 - Optional `draft`: boolean, default false; quoted strings/numbers/null are errors.
 - Invalid metadata stops the build and identifies the source file, including for
   hidden drafts. Filter validated posts once in `build.render_site()` before

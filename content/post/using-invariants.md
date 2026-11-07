@@ -2,7 +2,7 @@
 title: "Using Invariants"
 description: "Reconstructing a C exception interface by identifying the invariant behind its control flow"
 publishDate: "5 August 2026"
-tag: software
+tags: [systems, c]
 ---
 
 Recently, I've been studying [C Interfaces and Implementations](https://goodreads.com/book/show/475432.C_Interfaces_and_Implementations), which presents a collection of reusable interfaces and their implementations.
@@ -13,7 +13,7 @@ Matklad's post, [What Is an Invariant?](https://matklad.github.io/2023/10/06/wha
 
 This article is an attempt to apply that approach to the exception interface from the book.
 
-## Exceptions
+## Exceptions API
 
 > This section assumes basic familiarity with `setjmp` and `longjmp`.
 
@@ -50,7 +50,7 @@ END_TRY
 
 `S_1` is executed whether `S` finishes normally or leaves by raising an exception.
 
-### Implementation
+## Implementation
 
 Before jumping right into the interface, we need to understand the state that changes during execution.
 
@@ -103,7 +103,7 @@ The macros expand into fragments of a single `do`-`while` statement. Using this 
 do {
     create an exception frame and push it onto Except_stack
     if (initial return from setjmp) {
-        S
+        S [RAISE]
     } else if (e_1) {
         S_1
     } else if (e_2) {

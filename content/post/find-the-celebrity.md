@@ -2,7 +2,7 @@
 title: "Finding the Celebrity"
 description: "Using elimination and recursion to find a party celebrity with at most 3n - 4 questions"
 publishDate: "6 August 2026"
-tag: algorithm
+tags: [algorithms]
 ---
 
 > A celebrity at a party is someone whom everyone knows, yet who knows no one. Suppose that you are at a party with $n$ people. For any pair of people $A$ and $B$, you can ask $A$ whether they know $B$ and receive an honest answer. Give a recursive algorithm that determines whether the party includes a celebrity, and if so who, by asking at most $3n-4$ questions.

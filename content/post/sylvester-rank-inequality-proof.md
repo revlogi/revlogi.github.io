@@ -2,7 +2,7 @@
 title: "Proof of Sylvester's Rank Inequality"
 description: "Three proofs of Sylvester's rank inequality using block matrices, normal forms, and linear maps"
 publishDate: "23 October 2025"
-tag: math
+tags: [math, linear-algebra]
 ---
 $$\operatorname{rank}(AB) \ge \operatorname{rank}(A) + \operatorname{rank}(B) - n$$
 

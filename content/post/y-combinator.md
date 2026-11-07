@@ -2,7 +2,7 @@
 title: "Recursion without names"
 description: "y combinator #unfinished"
 publishDate: "6 July 2026"
-tag: computation
+tags: [pl]
 draft: true
 ---
 
@@ -64,4 +64,3 @@ def fac(n):
     return 1
   return n * fac(n - 1)
 ```
-

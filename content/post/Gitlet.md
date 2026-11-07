@@ -2,7 +2,7 @@
 title: "Gitlet"
 description: "Implementation notes on building Gitlet, a small Git-like version control system"
 publishDate: "12 December 2025"
-tag: software
+tags: [systems]
 ---
 
 The documentation below does not strictly follow the standard design document template CS61b provides. Instead, I have documented specific problems and implementation details that were particularly meaningful to my understanding of the system.
@@ -27,6 +27,7 @@ The documentation below does not strictly follow the standard design document te
 ## Classes Implementation
 
 Classes:
+
 ```
  Main
  Repository
@@ -36,7 +37,6 @@ Classes:
  StagingArea
  Remote
 ```
-
 
 ### Main Class
 
@@ -66,9 +66,9 @@ Manages the "index"—the staging area where changes are prepared before committ
 
 - **Data Structure Decision:** The class separates logic for additions and removals to handle edge cases effectively:
 
-    - **`addedFile` (HashMap<String, String>):** Maps file names to their SHA-1 hashes. This tracks the specific version of the content to be committed.
+  - **`addedFile` (HashMap<String, String>):** Maps file names to their SHA-1 hashes. This tracks the specific version of the content to be committed.
 
-    - **`removedFile` (HashSet<String>):** Contains only file names. A `Set` is used instead of a `Map` because the operation is binary (the file is marked for removal); tracking the content hash is unnecessary when the intent is to exclude the file from the next snapshot.
+  - **`removedFile` (HashSet<String>):** Contains only file names. A `Set` is used instead of a `Map` because the operation is binary (the file is marked for removal); tracking the content hash is unnecessary when the intent is to exclude the file from the next snapshot.
 
 #### Persistence Implementation
 
@@ -79,7 +79,6 @@ The state of the staging area is persisted in a file named `index` located wit
 - **Saving State:** After modifications are made, the object is serialized back to the `index` file to ensure changes are saved.
 
 - **Reset:** Upon a successful commit, the `index` file is overwritten with an empty staging area to prepare for the next cycle of changes.
-
 
 ### Branch Class
 
@@ -105,17 +104,15 @@ Check the file against two conditions. If **neither** condition is met, print:
 
 - Condition A: The file is Staged (in `addedFiles`)
 
-    - Unstage it (remove it from the `addedFiles` map).
+  - Unstage it (remove it from the `addedFiles` map).
 
 - Condition B: The file is Tracked (in the current `HEAD` commit)
 
-    - Stage it for removal (add it to the `removedFiles` list/set).
+  - Stage it for removal (add it to the `removedFiles` list/set).
 
-    - Remove the file from the CWD if it exists there.
-
+  - Remove the file from the CWD if it exists there.
 
 > A file can trigger both conditions. If a file is both staged and tracked, it must perform both actions (unstage it AND mark it for removal/delete it).
-
 
 ### status
 
@@ -130,11 +127,10 @@ There are four specific scenarios to check:
 - **Modified:** The file is tracked in the current commit, has changed in the CWD, but is **not** currently staged (not in `addedFiles`).
 - **Deleted:** The file is tracked in the current commit and has been deleted from the CWD, but has **not** been staged for removal (not in `removedFiles`).
 
-
 **B. Staged Files (Staging Area vs. CWD)** 
+
 - **Modified:** The file is currently staged (in `addedFiles`), but the version in the CWD has changed content compared to the staged version.
 - **Deleted:** The file is currently staged (in `addedFiles`), but it has been deleted from the CWD.
-
 
 ### merge
 
@@ -146,20 +142,19 @@ The merge command requires two distinct phases: locating the common ancestor (Sp
 
 - **Data Structures:**
 
-    - `HashSet<String>`: Used to store the ancestry of the current branch for O(1) lookups.
+  - `HashSet<String>`: Used to store the ancestry of the current branch for O(1) lookups.
 
-    - `Queue<String>`: Used to implement Breadth-First Search (BFS) for traversal.
+  - `Queue<String>`: Used to implement Breadth-First Search (BFS) for traversal.
 
 - **Algorithm:**
 
-    1. Mark Ancestors (Current Branch): Traverse the history of the Current Branch (starting from HEAD). Add the hash of every visited commit to the `HashSet`.
+  1. Mark Ancestors (Current Branch): Traverse the history of the Current Branch (starting from HEAD). Add the hash of every visited commit to the `HashSet`.
 
-    2. Find Nearest Match (Given Branch): Perform a BFS traversal on the Given Branch.
+  2. Find Nearest Match (Given Branch): Perform a BFS traversal on the Given Branch.
 
-        - For each commit visited, check if its hash exists in the `HashSet`.
+     - For each commit visited, check if its hash exists in the `HashSet`.
 
-        - The **first match** found is the Split Point (closest common ancestor).
-
+     - The **first match** found is the Split Point (closest common ancestor).
 
 #### 2. Reconciling File Differences
 
@@ -167,27 +162,27 @@ The merge command requires two distinct phases: locating the common ancestor (Sp
 
 - **Core Logic (Three-Way Merge):**
 
-    - Same Change (or No Change): If the file is identical in all three, or changed identically in both branches, do nothing.
+  - Same Change (or No Change): If the file is identical in all three, or changed identically in both branches, do nothing.
 
-    - Unilateral Change: If the file changed (or was removed) in one branch but remained the same in the other, adopt the changed version.
+  - Unilateral Change: If the file changed (or was removed) in one branch but remained the same in the other, adopt the changed version.
 
-    - Conflict: If the file changed in both branches in different ways, flag a conflict.
+  - Conflict: If the file changed in both branches in different ways, flag a conflict.
 
 - Implementation Steps:
 
-    1. File Collection: Load all filenames from the _Current_, _Given_, and _Split_ commits into a single `Set<String>`(Union of all files). This ensures that files deleted or added in any branch are not missed.
+  1. File Collection: Load all filenames from the *Current*, *Given*, and *Split* commits into a single `Set<String>`(Union of all files). This ensures that files deleted or added in any branch are not missed.
 
-    2. Per-File Iteration: Iterate through this master set and apply the merge rules to each file individually.
+  2. Per-File Iteration: Iterate through this master set and apply the merge rules to each file individually.
 
 - Logic Evolution (Refactoring):
 
-    - _Initial Approach (Incorrect):_ I initially attempted to use three global booleans (`currentChanged`, `givenChanged`, `differentChange`) to manage state. This was incorrect because merge logic must be atomic per file, not applied to the commit as a whole.
+  - *Initial Approach (Incorrect):* I initially attempted to use three global booleans (`currentChanged`, `givenChanged`, `differentChange`) to manage state. This was incorrect because merge logic must be atomic per file, not applied to the commit as a whole.
 
-    - _Corrected Approach:_ The logic is now handled inside the loop for every file separately.
+  - *Corrected Approach:* The logic is now handled inside the loop for every file separately.
 
-        - Files are staged, removed, or overwritten with conflict markers individually.
+    - Files are staged, removed, or overwritten with conflict markers individually.
 
-        - A single boolean flag (`conflictEncountered`) is tracked throughout the loop. If _any_ file triggers a conflict, this flag ensures the "Encountered a merge conflict" message is printed at the end.
+    - A single boolean flag (`conflictEncountered`) is tracked throughout the loop. If *any* file triggers a conflict, this flag ensures the "Encountered a merge conflict" message is printed at the end.
 
 ### push
 
@@ -195,40 +190,38 @@ The merge command requires two distinct phases: locating the common ancestor (Sp
 
 - **Logic (Reverse-BFS):**
 
-    1. Start a Breadth-First Search (BFS) from the **Local Head** backwards.
+  1. Start a Breadth-First Search (BFS) from the **Local Head** backwards.
 
-    2. Traverse through parents until you find the commit matching the **Remote Head**.
+  2. Traverse through parents until you find the commit matching the **Remote Head**.
 
-    3. **Validation:** If you reach the initial commit without finding the Remote Head, the push fails (history mismatch).
+  3. **Validation:** If you reach the initial commit without finding the Remote Head, the push fails (history mismatch).
 
-    4. **Transfer:** Collect all commits visited during the traversal (the "new" history). Copy these commit files—and any missing **Blobs** they reference—into the remote's `objects` directory.
+  4. **Transfer:** Collect all commits visited during the traversal (the "new" history). Copy these commit files—and any missing **Blobs** they reference—into the remote's `objects` directory.
 
-    5. **Finalize:** Update the remote branch reference (e.g., `refs/heads/master`) to point to the Local Head hash.
-
+  5. **Finalize:** Update the remote branch reference (e.g., `refs/heads/master`) to point to the Local Head hash.
 
 ### fetch
 
 - **Goal:** Download remote commits that the local repo does not yet have.
 
-- **Naive Approach:** Copy _all_ remote objects.
+- **Naive Approach:** Copy *all* remote objects.
 
-    -  Slow runtime; requires checking every file in the remote `objects` folder, even ones you already have.
+  -  Slow runtime; requires checking every file in the remote `objects` folder, even ones you already have.
 
 - **Optimized Approach (BFS):**
 
-    1. Start BFS from the **Remote Branch Head**.
+  1. Start BFS from the **Remote Branch Head**.
 
-    2. Traverse backwards through the remote history.
+  2. Traverse backwards through the remote history.
 
-    3. **Stop Condition:** If you encounter a commit hash that already exists in the **local** `objects` folder, **stop traversing that path**. You already own that history.
+  3. **Stop Condition:** If you encounter a commit hash that already exists in the **local** `objects` folder, **stop traversing that path**. You already own that history.
 
-    4. **Transfer:** For every _missing_ commit found:
+  4. **Transfer:** For every *missing* commit found:
 
-        - Copy the commit object to local.
+     - Copy the commit object to local.
 
-        - Read the commit to find its blobs. Copy any blobs that are missing locally.
+     - Read the commit to find its blobs. Copy any blobs that are missing locally.
 
-    5. **Finalize:** Create or update the remote branch pointer locally (e.g., `refs/heads/origin/master`).
-
+  5. **Finalize:** Create or update the remote branch pointer locally (e.g., `refs/heads/origin/master`).
 
 > Remote Path Handling: The user provides a string path (e.g., `../D1/.gitlet`). I convert this string into a `File` object to interact with the OS file system: `File remoteGitletDir = new File(remotePathString);` (Remember `File` object in java is only an address.)

@@ -13,7 +13,7 @@ pub type PostView {
     description: String,
     datetime: String,
     date: String,
-    tag: String,
+    tags: List(String),
     html: String,
   )
 }
@@ -60,15 +60,15 @@ pub fn render_post(
     "older",
     "Older →",
   ))
-  use tag <- result.try(case post.tag {
-    "" -> Ok("")
-    _ ->
+  use tags <- result.try(
+    list.try_map(post.tags, fn(tag) {
       template.substitute(
         "post-tag",
         templates.post_tag,
-        dict.from_list([#("tag", post.tag)]),
+        dict.from_list([#("tag", tag)]),
       )
-  })
+    }),
+  )
   use body <- result.try(template.substitute(
     "post",
     templates.post,
@@ -76,7 +76,7 @@ pub fn render_post(
       #("title", post.title),
       #("datetime", post.datetime),
       #("date", post.date),
-      #("tag", tag),
+      #("tag", string.concat(tags)),
       #("html", post.html),
       #("newer", newer_html),
       #("older", older_html),

@@ -2,7 +2,7 @@
 title: "Self-reproducing Program"
 description: "Building a quine from first principles in Ouro, a small language designed for self-reference"
 publishDate: "23 June 2026"
-tag: computation
+tags: [pl]
 ---
 
 How to write a program that reproduces itself? This is fundamentally a self-reference problem, formalized in computer science by the concept of a [quine](<https://en.wikipedia.org/wiki/Quine_(computing)>). A formal definition of this problem is as follows: A **quine** is a computer program that takes no input and produces a copy of its own source code as its only output.

@@ -2,7 +2,7 @@
 title: "Understand Cross Product"
 description: "Deriving the cross product from determinants and interpreting it through area and volume"
 publishDate: "11 January 2026"
-tag: math
+tags: [math, linear-algebra]
 ---
 
 Let two vectors be defined as:
