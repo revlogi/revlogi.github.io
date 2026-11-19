@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matrix Similarity Theory — Concept Map</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+/* ===== Everything is scoped under #sim-map so it can be pasted into a blog post ===== */
+#sim-map{
+  --ink:#1f2433; --muted:#6b7280; --line:#b9bfcc;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink); max-width:1600px; margin:0 auto; padding:8px;
+}
+#sim-map *{box-sizing:border-box}
+#sim-map .sm-head{text-align:center;margin:6px 0 10px}
+#sim-map .sm-head h2{margin:0;font-size:24px;letter-spacing:.3px}
+#sim-map .sm-head p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+#sim-map .sm-chain{margin:10px auto 0;display:inline-block;font-size:14px;background:#f6f7fb;border:1px solid #e3e6ee;border-radius:10px;padding:6px 14px}
+#sim-map .sm-wrap{position:relative;width:100%;overflow:hidden;background:#fff;border:1px solid #e3e6ee;border-radius:14px}
+#sim-map .sm-canvas{position:absolute;left:0;top:0;width:1600px;height:930px;transform-origin:0 0}
+#sim-map svg.sm-edges{position:absolute;left:0;top:0;width:1600px;height:930px;overflow:visible}
+#sim-map .sm-edge path{fill:none;stroke:var(--line);stroke-width:1.7;transition:opacity .2s,stroke .2s}
+#sim-map .sm-edge.weak path{stroke-dasharray:5 4}
+#sim-map .sm-edge.hl path{stroke:var(--ink);stroke-width:2.4}
+#sim-map .sm-node{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;background:#fff;border:2px solid;border-radius:12px;
+  padding:7px 16px 7px 22px;text-align:center;cursor:default;transition:opacity .2s,box-shadow .2s}
+#sim-map .sm-node::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:5px;border-radius:3px;background:var(--c)}
+#sim-map .sm-node:hover{box-shadow:0 4px 14px rgba(0,0,0,.16)}
+#sim-map .sm-node .t{font-weight:700;font-size:15px;line-height:1.35}
+#sim-map .sm-node .s{font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+#sim-map .sm-node .katex{font-size:1.02em}
+#sim-map .sm-lab{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:12px;color:#4b5263;background:rgba(255,255,255,.93);
+  padding:0 4px;border-radius:4px;line-height:1.5;pointer-events:none;transition:opacity .2s}
+#sim-map .sm-lab.hl{color:var(--ink);font-weight:600}
+#sim-map .dim{opacity:.13}
+#sim-map .sm-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;font-size:13px;margin:10px 0 2px;color:#444}
+#sim-map .sm-legend span{display:inline-flex;align-items:center;gap:6px}
+#sim-map .sm-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+#sim-map .sm-legend .dash{width:22px;height:0;border-top:2px dashed var(--line);border-radius:0}
+</style>
+</head>
+<body style="margin:0;background:#fff">
+
+<div id="sim-map">
+  <div class="sm-head">
+    <h2>Matrix Similarity Theory — Concept Map</h2>
+    <p>Hover over a node to highlight its connections.</p>
+    <div class="sm-chain">
+      $A\sim B \iff \lambda I-A\simeq\lambda I-B \iff$ same determinantal divisors $\iff$ same invariant factors $\iff$ same elementary divisors $\iff$ same canonical form
+    </div>
+  </div>
+  <div class="sm-wrap"><div class="sm-canvas">
+    <svg class="sm-edges">
+      <defs>
+        <marker id="sm-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9aa1b1"/></marker>
+        <marker id="sm-arrH" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1f2433"/></marker>
+      </defs>
+    </svg>
+  </div></div>
+  <div class="sm-legend"></div>
+</div>
+
+<script>
+(function(){
+const CATS={
+  base:{name:'Basic concepts',c:'#4f6bed'},
+  lam:{name:'λ-matrices',c:'#8b5cf6'},
+  fac:{name:'Divisors',c:'#f08c2e'},
+  poly:{name:'Characteristic / minimal polynomial',c:'#16a36a'},
+  form:{name:'Canonical forms',c:'#e5484d'},
+  calc:{name:'Computation & tests',c:'#0ea5b7'},
+  app:{name:'Applications',c:'#a16207'}
+};
+const N=[
+['sim',800,70,'base','Similarity','$B=P^{-1}AP$'],
+['inv',1220,70,'base','Similarity Invariants','necessary vs. complete'],
+['charmat',380,70,'lam','Characteristic Matrix $\\lambda I-A$','$\\lambda$-matrix in $F[\\lambda]^{n\\times n}$'],
+['smith',380,205,'lam','Smith Normal Form','$\\operatorname{diag}(d_1,\\dots,d_n),\\ d_i\\mid d_{i+1}$'],
+['thm',800,205,'lam','$A\\sim B\\iff\\lambda I-A\\simeq\\lambda I-B$','fundamental theorem'],
+['judge',1220,205,'calc','Similarity Test','from coarse to fine'],
+['detf',800,340,'fac','Determinantal Divisors $D_k(\\lambda)$','monic gcd of all $k\\times k$ minors'],
+['invf',800,480,'fac','Invariant Factors $d_k(\\lambda)$','$d_1\\mid d_2\\mid\\cdots\\mid d_n$'],
+['elem',800,620,'fac','Elementary Divisors','prime powers, e.g. $(\\lambda-a)^k$'],
+['charpoly',460,480,'poly','Characteristic Polynomial','$f(\\lambda)=\\det(\\lambda I-A)$'],
+['c3',165,480,'calc','Order-3 Formula','$f=\\lambda^3-t\\lambda^2+s\\lambda-d$'],
+['ch',165,650,'poly','Cayley–Hamilton','$f(A)=O$'],
+['minpoly',460,700,'poly','Minimal Polynomial $m(\\lambda)$','$m(\\lambda)\\mid f(\\lambda)$'],
+['eig',165,850,'base','Eigenvalues & Multiplicities','$1\\le\\text{geo}\\le\\text{alg}$'],
+['rank',800,850,'calc','Jordan Structure','$r_k=\\operatorname{rank}(A-\\lambda I)^k$'],
+['rational',1170,340,'form','Rational Canonical Form','$\\bigoplus_k C(d_k)$ — companion matrices'],
+['jordan',1150,620,'form','Jordan Canonical Form','$\\bigoplus_i J_{k_i}(\\lambda_i)$'],
+['diag',1445,620,'form','Diagonalizability','no Jordan block of size $>1$'],
+['transP',1150,850,'calc','Transition Matrix $P$','Jordan chains'],
+['app',1445,850,'app','Applications','$A^m,\\ e^{At},\\ \\dots$']
+].map(a=>({id:a[0],x:a[1],y:a[2],cat:a[3],t:a[4],s:a[5]}));
+
+/* [from, to, label, {curv, t (label position), weak}] */
+const E=[
+['sim','thm','characterized by',{}],
+['sim','inv','preserves',{}],
+['charmat','smith','elementary operations',{}],
+['smith','thm','equivalence',{}],
+['smith','invf','diagonal entries',{curv:-.12,t:.38}],
+['thm','detf','complete invariants',{}],
+['inv','judge','quick rejection',{}],
+['thm','judge','foundation',{}],
+['detf','invf','$d_k=D_k/D_{k-1}$',{curv:.4}],
+['invf','detf','$D_k=d_1\\cdots d_k$',{curv:.4}],
+['invf','elem','factor',{curv:.4}],
+['elem','invf','regroup (given $n$)',{curv:.4}],
+['detf','charpoly','$D_n=f$',{weak:1,t:.55}],
+['invf','charpoly','product',{}],
+['invf','minpoly','last one: $d_n=m$',{curv:.1,t:.3}],
+['elem','minpoly','lcm',{t:.4}],
+['elem','charpoly','product',{weak:1,curv:-.08,t:.28}],
+['charpoly','c3','$n=3$',{}],
+['charpoly','ch','annihilates',{t:.42}],
+['ch','minpoly','$m\\mid f$',{}],
+['charpoly','minpoly','same roots',{t:.42}],
+['charpoly','eig','roots',{t:.3}],
+['detf','rational','determine',{}],
+['invf','rational','companion blocks',{t:.55}],
+['elem','jordan','$(\\lambda-a)^k\\leftrightarrow J_k(a)$',{}],
+['jordan','diag','all blocks $1\\times1$',{}],
+['minpoly','diag','no repeated roots',{curv:.12,t:.8}],
+['minpoly','rank','largest block size',{t:.45}],
+['eig','rank','geo. mult. $=n-r_1$',{}],
+['rank','jordan','number & sizes of blocks',{t:.4}],
+['jordan','transP','Jordan chains',{}],
+['jordan','app','$A^m,\\ e^{At}$',{t:.45}],
+['rational','jordan','refine over $\\mathbb{C}$',{weak:1}],
+['judge','rational','compare',{weak:1}]
+];
+
+const root=document.getElementById('sim-map');
+const wrap=root.querySelector('.sm-wrap'),canvas=root.querySelector('.sm-canvas'),svg=root.querySelector('svg');
+const NS='http://www.w3.org/2000/svg',byId={};
+const KOPT={delimiters:[{left:'$',right:'$',display:false}],throwOnError:false};
+
+N.forEach(n=>{
+  const d=document.createElement('div');d.className='sm-node';
+  d.style.left=n.x+'px';d.style.top=n.y+'px';d.style.borderColor=CATS[n.cat].c;d.style.setProperty('--c',CATS[n.cat].c);
+  d.innerHTML=`<div class="t">${n.t}</div><div class="s">${n.s}</div>`;
+  canvas.appendChild(d);n.el=d;byId[n.id]=n;
+});
+E.forEach(e=>{
+  const l=document.createElement('div');l.className='sm-lab';l.innerHTML=e[2];canvas.appendChild(l);e.lab=l;
+  const g=document.createElementNS(NS,'g');g.setAttribute('class','sm-edge'+(e[3].weak?' weak':''));
+  const p=document.createElementNS(NS,'path');p.setAttribute('marker-end','url(#sm-arr)');g.appendChild(p);svg.appendChild(g);e.g=g;e.p=p;
+});
+root.querySelector('.sm-legend').innerHTML=Object.values(CATS).map(c=>`<span><i style="background:${c.c}"></i>${c.name}</span>`).join('')+
+  '<span><i class="dash"></i>auxiliary relation</span>';
+
+function clip(n,px,py){const dx=px-n.x,dy=py-n.y,hw=n.w/2+4,hh=n.h/2+4;const t=Math.min(hw/Math.abs(dx||1e-9),hh/Math.abs(dy||1e-9));return[n.x+dx*t,n.y+dy*t];}
+function layout(){
+  N.forEach(n=>{n.w=n.el.offsetWidth;n.h=n.el.offsetHeight;});
+  E.forEach(e=>{
+    const a=byId[e[0]],b=byId[e[1]],o=e[3],c=o.curv||0,t=o.t??.5;
+    const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,cx=mx-(b.y-a.y)*c,cy=my+(b.x-a.x)*c;
+    const[sx,sy]=clip(a,cx,cy),[ex,ey]=clip(b,cx,cy);
+    e.p.setAttribute('d',`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
+    const u=1-t;e.lab.style.left=(u*u*sx+2*u*t*cx+t*t*ex)+'px';e.lab.style.top=(u*u*sy+2*u*t*cy+t*t*ey)+'px';
+  });
+}
+function fit(){const k=wrap.clientWidth/1600;canvas.style.transform=`scale(${k})`;wrap.style.height=(930*k)+'px';}
+
+function focus(id){
+  if(!id){N.forEach(n=>n.el.classList.remove('dim'));E.forEach(e=>{e.g.classList.remove('dim','hl');e.lab.classList.remove('dim','hl');e.p.setAttribute('marker-end','url(#sm-arr)');});return;}
+  const nb=new Set([id]);E.forEach(e=>{if(e[0]===id)nb.add(e[1]);if(e[1]===id)nb.add(e[0]);});
+  N.forEach(n=>n.el.classList.toggle('dim',!nb.has(n.id)));
+  E.forEach(e=>{const on=e[0]===id||e[1]===id;[e.g,e.lab].forEach(x=>{x.classList.toggle('dim',!on);x.classList.toggle('hl',on);});e.p.setAttribute('marker-end',on?'url(#sm-arrH)':'url(#sm-arr)');});
+}
+N.forEach(n=>{n.el.addEventListener('mouseenter',()=>focus(n.id));n.el.addEventListener('mouseleave',()=>focus(null));});
+
+function init(){
+  if(window.renderMathInElement)renderMathInElement(root,KOPT);
+  fit();layout();
+  (document.fonts?document.fonts.ready:Promise.resolve()).then(layout);
+  setTimeout(layout,600);
+  new ResizeObserver(fit).observe(wrap);
+}
+if(document.readyState==='complete')init();else window.addEventListener('load',init);
+})();
+</script>
+</body>
+</html>
